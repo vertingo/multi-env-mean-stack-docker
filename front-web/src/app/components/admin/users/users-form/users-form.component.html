@@ -1,0 +1,82 @@
+<!-- card search -->
+<div class="mx-5 my-5 ">
+
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header class="search">
+        <mat-panel-title>
+          <div class="row ml-2 ">
+            <div>
+              <mat-icon class=" mx-2" aria-hidden="false" aria-label="Example home icon">group</mat-icon>
+            </div>
+            <div>
+              <p class="">Rechercher des utilisateurs</p>
+            </div>
+          </div>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="form" (ngSubmit)="filterUser()">
+
+        <div class="row">
+
+
+          <!-- lastname -->
+          <mat-form-field class="col-4">
+            <mat-label>Nom :</mat-label>
+            <input matInput formControlName="lastname" >
+          </mat-form-field>
+
+          <!-- firstname -->
+          <mat-form-field class="col-4">
+            <mat-label>Prénom :</mat-label>
+            <input matInput  formControlName="firstname" >
+          </mat-form-field>
+
+          <!-- username -->
+          <mat-form-field class="col-4">
+            <mat-label>Etat client :</mat-label>
+            <mat-select [formControl]="toppings" multiple>
+              <mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+        </div>
+
+        <div class="row">
+
+          <!-- email -->
+          <mat-form-field class="col-4">
+            <mat-label>Adresse mail :</mat-label>
+            <input matInput name="email" formControlName="email" >
+          </mat-form-field>
+
+          <!-- date interval -->
+          <mat-form-field class="col-4">
+            <input matInput placeholder="Inscription :" [satDatepicker]="picker" formControlName="date">
+            <sat-datepicker-toggle matSuffix [for]="picker">
+            </sat-datepicker-toggle>
+            <sat-datepicker #picker [rangeMode]="true" touchUi="true">
+            </sat-datepicker>
+          </mat-form-field>
+
+          <!-- username -->
+          <mat-form-field class="col-4">
+            <mat-label>Adresse :</mat-label>
+            <input matInput formControlName="adress">
+          </mat-form-field>
+
+        </div>
+
+        <div class="row justify-content-center">
+          <button mat-raised-button color="primary" class="mr-3" type="submit">Rechercher</button>
+          <button mat-raised-button color="primary" (click)="reset()">Effacer</button>
+        </div>
+
+      </form>
+
+    </mat-expansion-panel>
+
+  </mat-accordion>
+
+</div>

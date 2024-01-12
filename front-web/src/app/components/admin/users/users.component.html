@@ -1,0 +1,9 @@
+<div class="container  navtop">
+
+    <h1 class="mb-5">Liste des utilisateurs du jeux</h1>
+
+    <app-users-form (filterUsers)="filterUsersForm($event)"></app-users-form>
+
+    <app-users-list [users]="users" [total]="total" [page]="page" [pageSize]="pageSize" (filter)="filterUsersPage($event)" ></app-users-list>
+
+</div>

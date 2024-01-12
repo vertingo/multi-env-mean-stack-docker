@@ -1,0 +1,132 @@
+<div class="container navtop">
+
+
+    <div class="row justify-content-center">
+      <mat-card class="col-11 col-lg-7">
+        <mat-card-content>
+          <form [formGroup]="formGroup" (ngSubmit)="signUp()">
+            <mat-progress-bar class="row " *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+            <h1 class="row justify-content-center"><b>Inscription</b></h1>
+  
+            <div class="row justify-content-center ">
+              <button mat-raised-button class="col-10 col-lg-5 mr-lg-2 mb-2 googlelogin" style="background-color: #DB4437; color: white;">
+                <div class="row mt-1 ml-3">
+                  <mat-icon class="ml-2" svgIcon="googleLogo"></mat-icon>
+                  <p class="ml-2 marginButton">Se connecter avec Google</p>
+                </div>
+              </button>
+            
+              <button mat-raised-button class="col-10 col-lg-5 ml-lg-2 mb-2 facebooklogin" style="background-color: #3b5998; color: white;">
+                <div class="row mt-1 ml-3">
+                  <mat-icon class="ml-2" svgIcon="facebookLogo"></mat-icon>
+                  <p class="ml-2 marginButton">Se connecter avec Facebook</p>
+                </div>
+              </button>
+            </div>
+  
+            <div class="row  justify-content-center">
+              <div class="col-4">
+                <hr>
+              </div>
+              <div class="col-1">
+                <p>ou</p>
+              </div>
+              <div class="col-4">
+                <hr>
+              </div>
+            </div>
+            <div class="row justify-content-center">
+              <mat-form-field class="col-5">
+                <input matInput placeholder="Nom :" formControlName="lastname" required>
+                <mat-error *ngIf="!formGroup.controls['lastname'].valid || formGroup.controls['lastname'].touched">
+                  {{ getErrorLastname() }}
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field class="col-5">
+                <input matInput placeholder="Prénom :" formControlName="firstname" required>
+                <mat-error *ngIf="!formGroup.controls['firstname'].valid || formGroup.controls['firstname'].touched">
+                  {{ getErrorFirstname() }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="row justify-content-center">
+              <mat-form-field class="col-10">
+                <input matInput placeholder="Numéro de téléphone :" formControlName="phonenumber" required>
+                <mat-error *ngIf="!formGroup.controls['phonenumber'].valid || formGroup.controls['phonenumber'].touched">
+                  {{ getErrorPhonenumber() }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="row justify-content-center">
+              <mat-form-field  class="col-10">
+                <mat-label>Date de naissance :</mat-label>
+                <input matInput [matDatepicker]="picker" disabled="true" [max]="maxDate" formControlName="birthday" (click)="picker.open()"  required>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker touchUi disabled="false"  #picker></mat-datepicker>
+                <mat-error *ngIf="!formGroup.controls['birthday'].valid || formGroup.controls['birthday'].touched">
+                  {{ getErrorDate() }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="row justify-content-center">
+              <mat-form-field class="col-10">
+                <input matInput placeholder="Adresse :" formControlName="adress" required>
+                <mat-error *ngIf="!formGroup.controls['adress'].valid || formGroup.controls['adress'].touched">
+                  {{ getErrorAdress() }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+  
+            <div class="row justify-content-center">
+              <mat-form-field class="col-10">
+                <input matInput placeholder="Adresse email :" formControlName="email" required>
+                <mat-error *ngIf="!formGroup.controls['email'].valid || formGroup.controls['email'].touched">
+                  {{ getErrorEmail() }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="row justify-content-center">
+              <mat-form-field class="col-10">
+                <input matInput placeholder="Mot de passe :" formControlName="password" [type]="hide ? 
+                'password' : 'text'" required>
+                <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility_off' : 
+                  'visibility'}}</mat-icon>
+                <mat-error *ngIf="!formGroup.controls['password'].valid || formGroup.controls['password'].touched">
+                  {{ getErrorPassword() }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="row justify-content-center">
+              <mat-form-field class="col-10">
+                <input matInput placeholder="Confirmer le mot de passe :" formControlName="confirmPassword"  [type]="hide ? 
+                'password' : 'text'" required>
+                <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility_off' : 
+                  'visibility'}}</mat-icon>
+                  <mat-error *ngIf="!formGroup.controls['password'].valid || formGroup.controls['password'].touched">
+                  {{ getErrorConfirmPassword() }}
+              </mat-error>
+              </mat-form-field>
+            </div>
+
+  
+            <div class="row justify-content-center mt-3">
+              <button class="col-6 color-theme" mat-raised-button color="primary" type="submit">S'inscrire</button>
+            </div>
+            <p class="row justify-content-center mt-3">Vous avez un compte?<a class="ml-1" routerLink="/login">Se connecter</a></p>
+          </form>
+        </mat-card-content>
+      </mat-card>
+  
+      
+      
+  
+  
+    </div>
+  
+    
+    
+  
+  
+  
+  </div>

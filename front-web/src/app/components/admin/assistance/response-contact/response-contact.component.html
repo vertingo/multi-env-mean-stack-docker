@@ -1,0 +1,27 @@
+<h3 mat-dialog-title class="text-center ">  <span class="">Répondre à </span> <span class="font-weight-bold">{{element.email}}</span> </h3>
+
+<form [formGroup]="formGroup" >
+<div mat-dialog-content class="">
+   
+    <div class="row">
+        <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Message :</p>
+        <mat-form-field class="col-7 col-md-5" appearance="outline">
+            <textarea  rows="7" matInput formControlName="text"></textarea>
+            <mat-error *ngIf="!formGroup.controls['text'].valid || formGroup.controls['text'].touched">
+                {{ getErrorMessage() }}
+              </mat-error>
+        </mat-form-field>
+        
+    </div>
+
+</div>
+
+
+<div mat-dialog-actions class="row justify-content-center mt-2">
+       
+    <button mat-raised-button class="btn mr-2" color="primary" (click)="sendResponse()" >Modifier</button>
+    <button mat-raised-button class="btn ml-2" cdkFocusInitial color="primary" (click)="onNoClick()">Annuler</button>
+   
+  </div>
+
+</form>

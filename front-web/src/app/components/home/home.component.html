@@ -1,0 +1,70 @@
+<div class="container navtop">
+
+    <div class="range">
+        <h4 class="text-center concours font-weight-bold">Du 16 juillet 2020 au 16 septembre 2020</h4>
+        <h4 class="text-center concours">Pour tout achat d'une valeur de 18€ ou plus dans l'un de nos restaurants reçoit un code
+            Promo</h4>
+
+        <h1 class="text-center  gain mb-4">Tentez de gagner un Range Rover</h1>
+
+        <div class="row">
+            <div class="col-12 col-md-6 order-2 order-md-1">
+                <h4 class="col-12 col-md-9">A l'occasion de l'ouverture de notre 100e restaurants Fatboar, Tentez de repartir avec
+                    un Range Rover d'une valeur de 59900€ en participant à notre Grand jeu-concours FatBoar.</h4>
+                <h4 class="col-12 col-md-9">Il vous suffi d'une seule participation à notre jeu concours pour avoir une chance d'être tiré au sort et gagner votre Range Rover !</h4>
+                <h4 class="col-12 col-md-9">A noter que chacunes de vos participations vous offrons  une récompences !</h4>
+            </div>
+
+            <div class="col-12 col-md-6 order-1 order-md-2">
+                <img class="rangeRover"  [src]="getImgRange()" width="80%">
+            </div>
+
+        </div>
+
+        <div class=" row justify-content-center mt-3">
+            <button class="col-8 col-md-4 color-theme" mat-raised-button color="primary" type="submit" routerLink="/login">Je participe</button>
+        </div>
+
+    </div>
+
+    <div class="lots mt-4">
+       
+            <h2 class="text-center font-weight-bold">100% des tickets seront gagnants</h2>
+        
+
+        <div class="row mt-5">
+            <div class="col-4">
+                <img [src]="getDessert()"  width="100%" >
+                <h2 class="text-center font-weight-bold dessert">Un dessert au choix</h2>
+               
+            </div>
+            <div class="col-4">
+               
+                <img [src]="getBurger()" width="90%">
+                <h2 class="text-center font-weight-bold">Un burger au choix</h2>
+            </div>
+            <div class="col-4">
+                
+                <img [src]="getMenuJour()" width="60%">
+                <h2 class="text-center font-weight-bold">Un menu du jour</h2>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-4">
+                
+                <img [src]="getMenuChoix()" width="90%">
+                <h2 class="text-center font-weight-bold">Un menu au choix</h2>
+            </div>
+            <div class="col-4">
+               
+                <img [src]="getReduction()" width="90%">
+                <h2 class="text-center font-weight-bold">70% de réduction</h2>
+            </div>
+        </div>
+
+
+
+    </div>
+
+</div>

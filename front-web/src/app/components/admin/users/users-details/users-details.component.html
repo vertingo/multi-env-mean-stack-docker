@@ -1,0 +1,62 @@
+<h1 mat-dialog-title class="text-center font-weight-bold">{{element.lastname}} {{element.firstname}}</h1>
+<div mat-dialog-content class="">
+
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Nom :</p>
+    <div class="col-4"><p>{{element.lastname}}</p></div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Prénom :</p>
+    <div class="col-4"><p>{{element.firstname}}</p></div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Email :</p>
+    <div class="col-4"><p>{{element.email}}</p></div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Numéro de téléphone :</p>
+    <div class="col-4"><p>{{element.phonenumber}}</p></div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Adresse :</p>
+    <div class="col-4"><p>{{element.adress}}</p></div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Date de naissance :</p>
+    <div class="col-4"><p>{{element.birthday | date: 'longDate'}}</p></div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Compte :</p>
+    <div class="col-4">
+        <mat-icon *ngIf="element.isActive" class="done"  aria-hidden="false" aria-label="Example home icon">done</mat-icon>
+        <mat-icon *ngIf="!element.isActive" aria-hidden="false" aria-label="Example home icon">clear</mat-icon>
+    </div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Lots :</p>
+    <div class="col-4"> 
+        <mat-icon *ngIf="element.isGain" class="done"  aria-hidden="false" aria-label="Example home icon">done</mat-icon>
+        <mat-icon *ngIf="!element.isGain" color="warn"  aria-hidden="false" aria-label="Example home icon">clear</mat-icon>
+    </div>
+</div>
+<div class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Date d'inscription :</p>
+    <div class="col-4"><p>{{element.register_date | date: 'longDate'}}</p></div>
+</div>
+<div *ngIf="element.isGain" class="row">   
+    <p class="col-4 font-weight-bold text-lg-right">Gains :</p>
+    <div class="col-4">
+        <ul *ngFor="let item of element.gains">
+        <li>
+            {{item.gains}}
+        </li>
+       
+      </ul></div>
+</div>
+
+
+
+
+  
+  
+</div>

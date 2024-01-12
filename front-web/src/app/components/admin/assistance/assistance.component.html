@@ -1,0 +1,17 @@
+<div class="container navtop">
+
+    <div mat-dialog-actions class="row justify-content-center my-2">
+       
+        <button mat-raised-button class="btn mr-2" color="primary" (click)="subscribeToGetOpenMessage()" >Nouveaux Messages</button>
+        <button mat-raised-button class="btn ml-2" color="primary" (click)="subscribeToGetCloseMessage()" >Messages fermés</button>
+       
+      </div>
+
+
+    <app-assistance-list 
+    [listOpenMessage]="listOpenMessage"
+    (response)="responseMessage($event)"
+    (close)="closeMessage($event)">
+    </app-assistance-list>
+
+</div>

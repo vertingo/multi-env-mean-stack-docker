@@ -1,0 +1,33 @@
+<h1 mat-dialog-title class="text-center font-weight-bold">{{element.lastname}} {{element.firstname}}</h1>
+
+<form [formGroup]="formGroup" (ngSubmit)="updateProfil()">
+<div mat-dialog-content class="">
+   
+    <div class="row">
+        <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Téléphone :</p>
+        <mat-form-field class="col-7 col-md-5" appearance="outline">
+            <input matInput placeholder="" formControlName="phonenumber"  [(ngModel)]="user.phonenumber" required>
+            <mat-error *ngIf="!formGroup.controls['phonenumber'].valid || formGroup.controls['phonenumber'].touched">
+                {{ getErrorPhonenumber() }}
+              </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="row">
+        <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Adresse :</p>
+        <mat-form-field class="col-7 col-md-5" appearance="outline">
+            <input matInput placeholder="" formControlName="adress" [(ngModel)]="user.adress" required>
+            
+        </mat-form-field>
+    </div>
+
+</div>
+
+
+<div mat-dialog-actions class="row justify-content-center mt-2">
+       
+    <button mat-raised-button class="btn mr-2" color="primary" (click)="updateProfil()" >Modifier</button>
+    <button mat-raised-button class="btn ml-2" cdkFocusInitial color="primary" (click)="onNoClick()">Annuler</button>
+   
+  </div>
+
+</form>

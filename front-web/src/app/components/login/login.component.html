@@ -1,0 +1,77 @@
+<div class="container navtop">
+
+
+  <div class="row justify-content-center">
+ 
+    
+    <mat-card class="col-11 col-lg-5" style="border-radius: 10px;">
+      <mat-progress-bar class="col-12" *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+      <mat-card-content>
+        
+
+        <form [formGroup]="formGroup" (ngSubmit)="signIn()">
+          <h1 class="row justify-content-center"><b>Connexion</b></h1>
+
+          <div class="row justify-content-center mb-3">
+            <button mat-raised-button class="col-10 col-md-8 googlelogin" style="background-color: #DB4437; color: white;">
+              <div class="row mt-1 ml-3">
+                <mat-icon class="ml-2" svgIcon="googleLogo"></mat-icon>
+                <p class="ml-2 marginButton">Se connecter avec Google</p>
+              </div>
+            </button>
+          </div>
+
+          <div class="row justify-content-center ">
+            <button mat-raised-button class="col-10 col-md-8 facebooklogin" style="background-color: #3b5998; color: white;">
+              <div class="row mt-1 ml-3">
+                <mat-icon class="ml-2" svgIcon="facebookLogo"></mat-icon>
+                <p class="ml-2 marginButton">Se connecter avec Facebook</p>
+              </div>
+            </button>
+          </div>
+
+          <div class="row mt-3 justify-content-center">
+            <div class="col-4">
+              <hr>
+            </div>
+            <div class="col-1">
+              <p>ou</p>
+            </div>
+            <div class="col-4">
+              <hr>
+            </div>
+          </div>
+
+
+          <div class="row justify-content-center">
+            <mat-form-field class="col-10">
+              <input matInput placeholder="Adresse email" formControlName="email" required>
+              <mat-error *ngIf="!formGroup.controls['email'].valid && formGroup.controls['email'].touched">
+                {{ getErrorEmail() }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="row justify-content-center">
+            <mat-form-field class="col-10">
+              <input matInput placeholder="Mot de passe" formControlName="password" [type]="hide ? 
+              'password' : 'text'" required>
+              <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility_off' : 
+                'visibility'}}</mat-icon>
+              <mat-error *ngIf="!formGroup.controls['password'].valid && formGroup.controls['password'].touched">
+                {{ getErrorPassword() }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+
+          <div class="row justify-content-center mt-3">
+            <button class="col-6 color-theme" mat-raised-button color="primary" type="submit">Se connecter</button>
+          </div>
+          <p class="row justify-content-center mt-3"> <a routerLink="/login/lost-password">Mot de passe oublié ?</a></p>
+          <p class="row justify-content-center">Vous n'avez pas encore de compte?<a class="ml-1" routerLink="/register"> Créer un compte</a></p>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

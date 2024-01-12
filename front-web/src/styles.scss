@@ -1,0 +1,57 @@
+/* bootstrap 4 */
+@import "~bootstrap/dist/css/bootstrap.css";
+
+
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import '~saturn-datepicker/bundle.css';
+
+@import '~@angular/material/theming';
+@import url('https://fonts.googleapis.com/css2?family=Maven+Pro&display=swap');
+
+$custom-typography: mat-typography-config(
+  $font-family:  'Maven Pro'
+);
+@include mat-core($custom-typography);
+
+.blue-snackbar {
+  color: white;
+  height: 2em;
+  background: #F44E4E;
+}
+
+
+.centerdiv{
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+
+.mat-typography {
+  height: 90%;
+  font-size: 12px;
+  font: 'Maven Pro', sans-serif !important;
+}
+
+
+// .mat-raised-button{
+//   background: transparent linear-gradient(90deg, #F7AD32 0%, #EB7F25 100%) 0% 0% no-repeat padding-box !important;
+//   box-shadow: 2px 5px 10px #00000029 !important;
+//   opacity: 1 !important;
+//   color: rgb(231, 22, 22) !important;
+
+// }
+
+// .mat-color {
+//   background: transparent linear-gradient(90deg, #F7AD32 0%, #EB7F25 100%) 0% 0% no-repeat padding-box !important;
+//   box-shadow: 2px 5px 10px #00000029 !important;
+//   opacity: 1 !important;
+//   color: rgb(231, 22, 22) !important;
+
+// }
+
+.color-theme {
+  background-image: linear-gradient(to right, #f5af19, #f12711 );
+//   background-image: linear-gradient(to right, #e3cf48, #e6c139, #e8b22c, #eaa322, #eb931b, #eb8818, #eb7d17, #ea7118, #e96819, #e75e1a, #e5541c, #e3491e) !important;
+ }
+
+  

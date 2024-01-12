@@ -1,0 +1,34 @@
+
+      <mat-card class="v">
+        <mat-card-content>
+          <form [formGroup]="formGroup" (ngSubmit)="sendCodeGain()">
+            <!-- <mat-progress-bar class="row " *ngIf="loading" mode="indeterminate"></mat-progress-bar> -->
+            <h1 class="row justify-content-center font-weight-bold">Tentez votre chance, et repartez peut-etre avec votre Range Rover</h1>
+            <h3 class="row justify-content-center">Entrez votre code</h3>
+  
+  
+            <div class="row justify-content-center">
+                <div >
+                    <mat-form-field class="formu" appearance="outline">
+                        <input matInput formControlName="code" type="number" placeholder="Exemple : 1234567890">
+                        <mat-icon matSuffix>card_giftcard</mat-icon>
+                        <mat-error *ngIf="!formGroup.controls['code'].valid || formGroup.controls['code'].touched">
+                          {{ getErrorCode() }}
+                        </mat-error>
+                      </mat-form-field>
+                </div>
+                
+            </div>
+            
+  
+            <div class="row justify-content-center mt-3">
+              <button class="col-4 color-theme" mat-raised-button color="primary" type="submit">Je vérifie</button>
+            </div>
+
+            <h1 class="row justify-content-center"><b>100% gagnant</b></h1>
+           
+          </form>
+        </mat-card-content>
+      </mat-card>
+  
+   

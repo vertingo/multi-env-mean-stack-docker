@@ -1,0 +1,55 @@
+{
+    "success": true,
+    "data": [
+        {
+            "index": 1,
+            "name": "FatBoar 1",
+            "adress": "Centre des Finances Publiques, Rue Godefroy Cavaignac, 75011 Paris, France",
+            "longitude": 2.38036,
+            "latitude":  48.85645
+        },
+        {
+            "index": 2,
+            "name": "FatBoar 2",
+            "adress": "80 Boulevard John Fitzgerald Kennedy, 94000 Créteil, France",
+            "longitude": 2.462243,
+            "latitude": 48.780494
+        },
+        {
+            "index": 3,
+            "name": "FatBoar 3",
+            "adress": "24 Rue du Nouvelet, 94310 Orly, France",
+            "longitude": 2.40611,
+            "latitude": 48.742246
+        },
+        {
+            "index": 4,
+            "name": "FatBoar 4",
+            "adress": "54 Rue Richard Lenoir, 75011 Paris, France",
+            "longitude": 2.381039,
+            "latitude": 48.856859
+        },
+        {
+            "index": 5,
+            "name": "FatBoar 5",
+            "adress": "20 Rue Houdart, 95700 Roissy-en-France, France",
+            "longitude": 2.515081,
+            "latitude": 49.002317
+        },
+        {
+            "index": 6,
+            "name": "FatBoar 6",
+            "adress": "67 Sentier de la Savoie, 92140 Clamart, France",
+            "longitude": 2.276524,
+            "latitude": 48.799974
+        },
+        {
+            "index": 7,
+            "name": "FatBoar 7",
+            "adress": "7 Rue de Verdun, 77000 Melun, France",
+            "longitude": 2.648686,
+            "latitude": 48.531296
+        }
+       
+    ]
+}

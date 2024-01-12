@@ -1,0 +1,55 @@
+
+.fatboar-navbar{
+// height: 11vh;
+position: fixed;
+top: 0;
+left: 0;
+z-index: 9999;
+background-image: linear-gradient(to right, #f5af19, #f12711 );
+// background-image: linear-gradient(to right, #d6c055, #dab546, #dea938, #e29d2b, #e69021, #e8851e, #e97a1e, #ea6e1f, #e96224, #e75529, #e4482e, #e13a33);
+}
+
+.fatboar-sidenav-container{
+background-color: white;
+min-height: 94vh !important;
+}
+
+a{
+  text-decoration: none;
+  white-space: normal;
+}
+
+.navbtn:hover{
+  color: rgb(20, 12, 139) ;
+}
+
+.msidenav{
+  margin-top: 4em;
+}
+
+.example-icon {
+  padding: 0 14px;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+// .fatboar-sidenav-content{
+   
+// }
+
+
+
+
+
+@media screen  and (max-width: 603px) {
+  .logo-fatboar{
+    margin-left: 5em;
+   }
+}
+@media screen  and (min-width: 603px) {
+  .logo-fatboar{
+    margin-left: 3.4em;
+   }
+}

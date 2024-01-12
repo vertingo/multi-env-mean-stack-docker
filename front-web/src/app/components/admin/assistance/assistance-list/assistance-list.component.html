@@ -1,0 +1,23 @@
+<div *ngFor="let item of listOpenMessage">
+  <mat-accordion class="">
+    <mat-expansion-panel class="mb-3" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ item.email}}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{item.created_date  | date: 'short'}}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+
+      <p class="text-center font-weight-bold">{{item.message}}</p>
+
+      <div *ngIf="item.is_closed === false" class="row justify-content-center mt-2">
+        <button mat-raised-button class="btn mr-2" color="primary" (click)="responseMessage(item)">Répondre</button>
+        <button mat-raised-button class="btn ml-2" color="primary" (click)="closeMessage(item)">Supprimer</button>
+      </div>
+
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

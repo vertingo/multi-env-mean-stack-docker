@@ -1,0 +1,54 @@
+ <!-- table of users -->
+
+    <table mat-table [dataSource]="lots" class="tablegain">
+
+
+      <!-- index -->
+      <ng-container matColumnDef="index">
+        <th mat-header-cell *matHeaderCellDef> Numéro </th>
+        <td mat-cell *matCellDef="let element"  class="text-left"> {{element.index}} </td>
+      </ng-container>
+
+      <!-- code -->
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef> Code </th>
+        <td mat-cell *matCellDef="let element"  class="text-left"> {{element.code}} </td>
+      </ng-container>
+
+      <!-- gain -->
+      <ng-container matColumnDef="gain">
+        <th mat-header-cell *matHeaderCellDef> Lot gagné </th>
+        <td mat-cell *matCellDef="let element"  class="text-left"> {{element.gains}} </td>
+      </ng-container>
+
+
+      <!-- isServed -->
+      <ng-container matColumnDef="isServed">
+        <th mat-header-cell *matHeaderCellDef> Servé </th>
+        <td mat-cell *matCellDef="let element"  class="text-left">
+            <mat-icon *ngIf="element.isServed === true" class="icon mr-2" style="color:#4FC031">done_outline</mat-icon>
+            <mat-icon *ngIf="element.isServed === false" class="icon mr-2" style="color:rgb(67, 151, 230)">hourglass_bottom</mat-icon>
+           </td>
+      </ng-container>
+
+       <!-- date_used -->
+      <ng-container matColumnDef="date_used">
+        <th mat-header-cell *matHeaderCellDef> Date d'utilisation </th>
+        <td mat-cell *matCellDef="let element"  class="text-left"> {{element.date_used | date: 'longDate' }} </td>
+      </ng-container>
+
+      
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+
+
+
+    <!-- <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="[2,3,10]" [showFirstLastButtons]="true"
+      (page)="handlePage($event)">
+    </mat-paginator> -->
+
+
+

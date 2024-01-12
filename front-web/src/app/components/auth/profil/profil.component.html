@@ -1,0 +1,97 @@
+<div class="container navtop ">
+
+    <div class="row justify-content-center">
+        <mat-card class="col-11 col-md-8">
+            <mat-card-content>
+
+                <div class="row">
+                    <div class="col-md-6 border-right">
+                        <div class="row justify-content-center ">
+                            <img width="120" height="120" src="assets/img/profil/profil.png" alt="">
+                        </div>
+                        <div class="row justify-content-center mb-3">
+                           <p><b>{{user.firstname}} {{user.lastname}}</b></p>
+                        </div>
+
+                        <div class="row">
+                            <p class="col-5">
+                                Email :
+                            </p>
+
+                            <p class="col-5">{{user.email}}</p>
+
+                        </div>
+
+                        <div class="row">
+                            <p class="col-5">
+                                Mot de passe :
+                            </p>
+
+                            <p class="col-5">***********</p>
+
+                        </div>
+
+                        <div class="row justify-content-center mt-3">
+                            <button class="col-6" mat-raised-button color="primary" type="submit" (click)="editInfoUserConnexion()">Modifier</button>
+                          </div>
+                    </div>
+                    <div class="col-md-6">
+
+                    <div class="row">
+                        <div class="col-5">
+                            <p>Nom : </p>
+                        </div>
+                        <div class="col-5">
+                            <p>begaz</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <p>Prénom : </p>
+                        </div>
+                        <div class="col-5">
+                            <p>ghiles</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <p>Numéro de téléphone : </p>
+                        </div>
+                        <div class="col-5">
+                            <p>{{user.phonenumber}}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <p>Date de naissance : </p>
+                        </div>
+                        <div class="col-5">
+                            <p>{{user.birthday | date: 'longDate'}}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <p>Adresse : </p>
+                        </div>
+                        <div class="col-5">
+                            <p>{{user.adress}}</p>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center mt-3">
+                        <button class="col-6" mat-raised-button color="primary" (click)="editInfoUser()" >Modifier</button>
+                      </div>
+                </div>
+
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+
+    </div>
+
+
+
+
+
+
+</div>

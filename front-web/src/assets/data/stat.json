@@ -1,0 +1,35 @@
+{
+    "success": true,
+    "data": [
+        {
+            "gain": "une entrée ou un dessert au choix",
+            "used": 45,
+            "served": 1,
+            "total": 900000
+        },
+        {
+            "gain": "un burger au choix",
+            "used": 6700,
+            "served": 33,
+            "total": 300000
+        },
+        {
+            "gain": "un menu du jour",
+            "used": 89,
+            "served": 12,
+            "total": 150000
+        },
+        {
+            "gain": "un menu au choix",
+            "used": 2000,
+            "served": 1400,
+            "total": 90000
+        },
+        {
+            "gain": "70% de réduction",
+            "used": 136,
+            "served": 90,
+            "total": 60000
+        }
+    ]
+}

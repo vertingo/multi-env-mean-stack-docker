@@ -1,0 +1,47 @@
+<mat-card class="">
+  <mat-card-content>
+    <form [formGroup]="formGroup" (ngSubmit)="sendMsgContact()">
+      <mat-progress-bar class="row " *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+      <h1 class="row justify-content-center"><b>Contactez-nous</b></h1>
+
+
+
+      <div class="row justify-content-center">
+        <mat-form-field appearance="outline" class="col-10">
+          <mat-label>Nom</mat-label>
+          <input matInput placeholder="Nom" formControlName="lastname">
+          <mat-error *ngIf="!formGroup.controls['lastname'].valid && formGroup.controls['lastname'].touched">
+            {{ getErrorLastname() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    
+
+
+      <div class="row justify-content-center">
+        <mat-form-field appearance="outline" class="col-10">
+          <mat-label>Adresse email</mat-label>
+          <input matInput placeholder="Adresse email" formControlName="email">
+          <mat-error *ngIf="!formGroup.controls['email'].valid && formGroup.controls['email'].touched">
+            {{ getErrorEmail() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row justify-content-center">
+        <mat-form-field appearance="outline" class="col-10">
+          <mat-label>Message</mat-label>
+          <textarea  rows="7" matInput formControlName="message"></textarea>
+          <mat-error *ngIf="!formGroup.controls['message'].valid && formGroup.controls['message'].touched">
+            {{ getErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row justify-content-center mt-3 mb-2">
+        <button class="col-6 color-theme" mat-raised-button color="primary" type="submit">Envoyer</button>
+      </div>
+
+    </form>
+  </mat-card-content>
+</mat-card>

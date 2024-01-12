@@ -1,0 +1,84 @@
+<mat-card class="">
+  <mat-card-content>
+
+    <!-- <mat-progress-bar class="row " *ngIf="loading" mode="indeterminate"></mat-progress-bar> -->
+    <h1 class="row justify-content-center mb-4"><b>Emailing</b></h1>
+
+
+    <div class="row justify-content-center mb-3">
+      <mat-radio-group aria-label="Select an option" (change)="selectValue($event)">
+        <mat-radio-button *ngFor="let option of userOptions" [checked]="option.checked" value="{{option.value}}">
+          {{option.label}}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+
+    <div class="row mb-4" *ngIf="selectedRadio == 5">
+      <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Adresse email :</p>
+      <mat-form-field class="col-7 col-md-5" appearance="outline">
+        <input matInput type="text" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" id="email" name="email"
+          [(ngModel)]="adressemail" #emailref="ngModel" required>
+        <mat-error *ngIf="emailref.errors &&(emailref.touched || emailref.dirty)" [hidden]="!emailref.errors?.pattern">
+          Adresse email Invalide
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+
+
+    <form [formGroup]="formGroup" (ngSubmit)="sendEmail()">
+
+
+      <div class="row">
+        <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Titre :</p>
+        <mat-form-field class="col-7 col-md-5" appearance="outline">
+          <input matInput placeholder="" formControlName="title" required>
+          <mat-error *ngIf="!formGroup.controls['title'].valid || formGroup.controls['title'].touched">
+            {{ getErrorTitle() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Description :</p>
+        <mat-form-field class="col-7 col-md-5" appearance="outline">
+          <input matInput placeholder="" formControlName="description" required>
+          <mat-error *ngIf="!formGroup.controls['description'].valid || formGroup.controls['description'].touched">
+            {{ getErrorDescription() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Objet :</p>
+        <mat-form-field class="col-7 col-md-5" appearance="outline">
+          <input matInput placeholder="" formControlName="subject" required>
+          <mat-error *ngIf="!formGroup.controls['subject'].valid || formGroup.controls['subject'].touched">
+            {{ getErrorObject() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+
+      <div class="row ">
+        <p class="col-5 col-md-4 font-weight-bold text-lg-right parag">Message :</p>
+        <mat-form-field class="col-7 col-md-5" appearance="outline" style="width: 500px;">
+          <textarea matInput rows="13" formControlName="text"></textarea>
+          <mat-error *ngIf="!formGroup.controls['text'].valid || formGroup.controls['text'].touched">
+            {{ getErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+
+      <div class="row justify-content-center my-3">
+        <button class="mr-4" mat-raised-button color="primary" type="submit">Envoyer</button>
+        <button class="" mat-raised-button color="primary" (click)="resetForm()">Effacer</button>
+      </div>
+
+
+
+    </form>
+  </mat-card-content>
+</mat-card>
