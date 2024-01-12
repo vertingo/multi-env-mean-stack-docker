@@ -1,0 +1,91 @@
+version: '3.8'
+services:
+  app:
+    container_name: mean_stack_container_front_web
+    build:
+      context: ../../front-web
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+    environment:
+      - APP_PORT=${APP_PORT}
+      - APP_DOMAIN=${APP_DOMAIN}
+      - BACKEND_DOMAIN=${BACKEND_DOMAIN}
+      - NODE_ENV=development
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    volumes:
+      - ../../front-web/:/var/www/app:delegated # Link host directory to container
+      - ../../front-web/package.json:/var/www/app/package.json
+      - ../../front-web/package-lock.json:/var/www/app/package-lock.json
+      - node_modules_frontend:/var/www/app/node_modules
+    networks:
+      - ${REVERSE_PROXY_NETWORK}
+    healthcheck:
+      disable: true  
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.app-secure.entrypoints=websecure"
+      - "traefik.http.routers.app-secure.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.app-secure.service=app"
+      - "traefik.http.services.app.loadbalancer.server.port=${APP_PORT}"			
+  back:
+    container_name: mean_stack_container_backend
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT}
+      - BACKEND_DOMAIN=${BACKEND_DOMAIN}
+      - DATABASE_URL=${DATABASE_URL}
+#     - DATABASE_SSL=${DATABASE_SSL}
+      - FOREST_AUTH_SECRET=${FOREST_AUTH_SECRET}
+      - FOREST_ENV_SECRET=${FOREST_ENV_SECRET}
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ../../backend/:/usr/src/app
+      - ../../front-mobile/:/usr/src/front-mobile
+      - node_modules_backend:/usr/src/app/node_modules			
+    networks:
+      - ${REVERSE_PROXY_NETWORK}
+    depends_on: 
+      - mongodb    
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.back-secure.entrypoints=websecure"
+      - "traefik.http.routers.back-secure.rule=Host(`${BACKEND_DOMAIN}`)"
+      - "traefik.http.routers.back-secure.service=back"
+      - "traefik.http.services.back.loadbalancer.server.port=${BACKEND_PORT}"  
+  mongodb:
+    container_name: mean_stack_container_mongodb
+    image: mongo:6.0
+#   ports:
+#     - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGO_DB_ADMIN_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_ADMIN_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_ADMIN_PASSWORD}
+      - MONGO_INITDB_CUSTOM_DATABASE=${MONGO_CUSTOM_DB}
+      - MONGO_INITDB_CUSTOM_USERNAME=${MONGO_DB_CUSTOM_USERNAME}
+      - MONGO_INITDB_CUSTOM_PASSWORD=${MONGO_DB_CUSTOM_PASSWORD}
+    volumes:
+#     seeding scripts
+      - ../../script/docker/mongodb/mongo-entrypoint:/docker-entrypoint-initdb.d
+#     named volumes
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
+    networks:
+      - ${REVERSE_PROXY_NETWORK}
+volumes:
+# default dir on Ubuntu: /var/lib/docker/volumes
+  mongodb:
+  mongoconfig:		
+  node_modules_frontend: {}		
+  node_modules_backend: {}	
+networks:
+  reverse-proxy:
+    external:
+      name: ${REVERSE_PROXY_NETWORK}  

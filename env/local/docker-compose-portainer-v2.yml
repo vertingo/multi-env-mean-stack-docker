@@ -1,0 +1,26 @@
+version: "3.3"
+networks:
+  reverse-proxy:
+    external:
+      name: ${REVERSE_PROXY_NETWORK}
+services:
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    restart: unless-stopped
+    env_file:
+      - .env
+    security_opt:
+      - no-new-privileges:true
+    command: --no-auth --host=${DOCKER_CONTAINER_HOST}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - ${REVERSE_PROXY_NETWORK}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.socle-portainer-secure.service: "socle-portainer-secure"
+      traefik.http.services.socle-portainer-secure.loadbalancer.server.port: "9000"
+      traefik.http.routers.socle-portainer-secure.entrypoints: "websecure"
+      traefik.http.routers.socle-portainer-secure.rule: "Host(`${PORTAINER_DOMAIN}`)"
+      traefik.http.routers.socle-portainer-secure.tls: "true"

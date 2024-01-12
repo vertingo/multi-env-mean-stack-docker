@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+
+  dnsmasq:
+    container_name: dnsmasq
+    image: andyshinn/dnsmasq
+    restart: always
+    command: -A /docker.devhost/${REVERSE_PROXY_HOST_IP}
+    ports:
+      - "${REVERSE_PROXY_HOST_IP}:53:53/udp"
+      - "${REVERSE_PROXY_HOST_IP}:53:53/tcp"
+    cap_add:
+      - NET_ADMIN

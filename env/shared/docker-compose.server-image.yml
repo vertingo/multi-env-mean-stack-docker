@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  server-image:
+    container_name: socializus_server_image
+    build:
+      context: ../../server-image
+      dockerfile: Dockerfile
+    environment:
+      - IMAGE_SERVER_PORT=${IMAGE_SERVER_PORT}
+      - IMAGE_SERVER_URL=${IMAGE_SERVER_URL}
+#   ports:
+#     - "${IMAGES_SERVER_PORT}:${IMAGES_SERVER_PORT}"
+    volumes:
+      - ../../server-image/:/src
+      - node_modules_server_image:/src/node_modules			
+    networks:
+      - MyMeanStackNetwork
+      - traefik-global-proxy   
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.back-secure.entrypoints=websecure"
+      - "traefik.http.routers.back-secure.rule=Host(`${IMAGE_SERVER_URL}`)"
+      - "traefik.http.routers.back-secure.service=back"
+      - "traefik.http.services.back.loadbalancer.server.port=${IMAGE_SERVER_PORT}" 
+volumes:
+# default dir on Ubuntu: /var/lib/docker/volumes
+  node_modules_server_image: {}	
+networks:
+  traefik-global-proxy:
+    external: true
+

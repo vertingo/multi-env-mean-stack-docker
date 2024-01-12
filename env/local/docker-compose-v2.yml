@@ -1,0 +1,37 @@
+version: "3.3"
+networks:
+  reverse-proxy:
+    external:
+      name: ${REVERSE_PROXY_NETWORK}
+  back:
+    driver: bridge
+services:
+  traefik:
+    image: "traefik:v2.2"
+    container_name: "traefik"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - .env
+    networks:
+      - ${REVERSE_PROXY_NETWORK}
+      - back
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - $PWD/traefikV2/${CONFIG_TRAEFIK_FILENAME}:/etc/traefik/traefik.yaml
+      - $PWD/ssl/certificats:/tools/certs
+      - $PWD/traefikV2/config-ssl.yml:/etc/traefik/dynamic_conf/config-ssl.yml:ro
+    labels:
+      traefik.enable: "true"
+
+      # Dashboard
+      traefik.http.routers.socle-traefik-secure.service: "api@internal"
+
+      # HTTPS
+      traefik.http.routers.socle-traefik-secure.entrypoints: "websecure"
+      traefik.http.routers.socle-traefik-secure.rule: "Host(`${TRAEFIK_DOMAIN}`)"
+      traefik.http.routers.socle-traefik-secure.tls: "true"

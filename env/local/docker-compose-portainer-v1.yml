@@ -1,0 +1,24 @@
+version: "3.3"
+networks:
+  reverse-proxy:
+    external:
+      name: ${REVERSE_PROXY_NETWORK}
+services:
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    restart: unless-stopped
+    env_file:
+      - .env
+    security_opt:
+      - no-new-privileges:true
+    command: --no-auth --host=${DOCKER_CONTAINER_HOST}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ${REVERSE_PROXY_NETWORK}
+    labels:
+      traefik.enable: "true"
+      traefik.port: "9000"
+      traefik.backend: "portainer"
+      traefik.frontend.rule: "Host:portainer.${BASE_DOMAIN}"

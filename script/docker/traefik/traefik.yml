@@ -1,0 +1,37 @@
+log:
+  level: INFO
+
+api:
+  dashboard: true
+  insecure: false
+
+entryPoints:
+  web:
+    address: :80
+# Activation de la redirection auto en https
+#    http:
+#      redirections:
+#        entryPoint:
+#          to: websecure
+
+  websecure:
+    address: :443
+    http:
+      tls: true
+
+certificatesResolvers:
+  caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  default:
+    acme:
+      email: "admin-support@niji.fr"
+      storage: "/etc/forge/traefik/acme.json"
+      dnsChallenge:
+        provider: "ovh"
+        delayBeforeCheck: "0s"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    filename: /configurations/dynamic.yml

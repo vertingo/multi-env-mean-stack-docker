@@ -1,0 +1,35 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+serversTransport:
+  # Optional, Default=false
+  # insecureSkipVerify disables SSL certificate verification.
+  insecureSkipVerify: false
+
+log:
+  level: "ERROR"
+
+api:
+  insecure: true # enable WEB UI
+  dashboard: true
+  debug: false
+
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: :443
+providers:
+  file:
+    filename: /etc/traefik/dynamic_conf/config-ssl.yml
+  docker:
+    watch: true
+    exposedByDefault: false
+    network: reverse-proxy
+

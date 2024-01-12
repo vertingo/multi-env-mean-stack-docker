@@ -1,0 +1,128 @@
+version: '3.8'
+services:
+  nginx-front:
+    container_name: mean_stack_container_front_web
+    build:
+      context: ../../script/docker/nginx
+      dockerfile: DockerfileNginxFront
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT}
+      - BACKEND_URL=${BACKEND_URL}
+      - DATABASE_URL=${DATABASE_URL}
+#     - DATABASE_SSL=${DATABASE_SSL}
+      - FOREST_AUTH_SECRET=${FOREST_AUTH_SECRET}
+      - FOREST_ENV_SECRET=${FOREST_ENV_SECRET}  
+    restart: always
+    volumes:
+      - ../../front-web/web-build:/usr/share/nginx/html/:z,ro
+#       see https://github.com/matomo-org/matomo-nginx
+      - ../../script/docker/nginx/nginx-front.conf:/etc/nginx/conf.d/default.conf:z,ro
+#   ports:
+#     - 80:80
+    networks:
+      - MyMeanStackNetwork
+      - traefik-global-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.nginx-front-secure.entrypoints=websecure"
+      - "traefik.http.routers.nginx-front-secure.rule=Host(`${NGINX_FRONT_URL}`)"
+      - "traefik.http.routers.nginx-front-secure.service=nginx-front"
+      - "traefik.http.services.nginx-front.loadbalancer.server.port=${NGINX_FRONT_PORT}"	
+# nginx-back:
+#   container_name: socializus_nginx_back_web
+#   build:
+#     context: docker/nginx
+#     dockerfile: DockerfileNginxBack
+#   environment:
+#     - BACKEND_PORT=${BACKEND_PORT}
+#     - BACKEND_URL=${BACKEND_URL}
+#     - DATABASE_URL=${DATABASE_URL}
+#     - DATABASE_SSL=${DATABASE_SSL}
+#     - FOREST_AUTH_SECRET=${FOREST_AUTH_SECRET}
+#     - FOREST_ENV_SECRET=${FOREST_ENV_SECRET}  
+#   restart: always
+#   volumes:
+#     - front-web/react-web-build:/usr/share/nginx/html/:z,ro
+#       see https://github.com/matomo-org/matomo-nginx
+#     - ./script/docker/nginx/nginx-front.conf:/etc/nginx/conf.d/default.conf:z,ro
+#   ports:
+#     - 80:80
+#   networks:
+#     - MySocializusNetwork
+#     - traefik-global-proxy
+#   labels:
+#     - "traefik.enable=true"
+#     - "traefik.docker.network=traefik-global-proxy"
+#     - "traefik.http.routers.nginx-back-secure.entrypoints=websecure"
+#     - "traefik.http.routers.nginx-back-secure.rule=Host(`${NGINX_BACK_URL}`)"
+#     - "traefik.http.routers.nginx-back-secure.service=nginx"
+#     - "traefik.http.services.nginx-back.loadbalancer.server.port=${NGINX_BACK_PORT}"  		
+  back:
+    container_name: mean_stack_container_backend
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile.Prod
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT}
+      - BACKEND_URL=${BACKEND_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_HOST=${REDIS_HOST}
+#     - DATABASE_SSL=${DATABASE_SSL}
+      - FOREST_AUTH_SECRET=${FOREST_AUTH_SECRET}
+      - FOREST_ENV_SECRET=${FOREST_ENV_SECRET}
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ../../backend/:/src
+      - node_modules_backend:/src/node_modules	
+    networks:
+      - MyMeanStackNetwork
+      - traefik-global-proxy
+    depends_on: 
+      - mongodb   
+      - redis 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.back-secure.entrypoints=websecure"
+      - "traefik.http.routers.back-secure.rule=Host(`${BACKEND_URL}`)"
+      - "traefik.http.routers.back-secure.service=back"
+      - "traefik.http.services.back.loadbalancer.server.port=${BACKEND_PORT}"	     
+  redis:
+    container_name: mean_stack_container_redis
+    image: 'redis:latest'
+    restart: always
+    command: redis-server --save
+    networks:
+      - MyMeanStackNetwork
+  mongodb:
+    container_name: mean_stack_container_mongodb
+    image: mongo:6.0
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGO_DB_ADMIN_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_ADMIN_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_ADMIN_PASSWORD}
+      - MONGO_INITDB_CUSTOM_DATABASE=${MONGO_CUSTOM_DB}
+      - MONGO_INITDB_CUSTOM_USERNAME=${MONGO_DB_CUSTOM_USERNAME}
+      - MONGO_INITDB_CUSTOM_PASSWORD=${MONGO_DB_CUSTOM_PASSWORD}
+    volumes:
+#     seeding scripts
+      - ../../script/docker/mongodb/mongo-entrypoint:/docker-entrypoint-initdb.d
+#     named volumes
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
+    networks:
+      - MyMeanStackNetwork
+volumes:
+# default dir on Ubuntu: /var/lib/docker/volumes
+  mongodb:
+  mongoconfig:	
+  node_modules_backend: {}		
+networks:
+  MyMeanStackNetwork:
+    driver: bridge
+  traefik-global-proxy:
+    external: true	

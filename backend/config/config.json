@@ -1,0 +1,12 @@
+{
+    "url": "mongodb+srv://ghiles:ghilesbegaz@cluster0-088iw.mongodb.net/api-fatboar",
+    "secret_key": "api-fatboar-ghiles",
+    "reset_password_key": "passwordkey-fatboar_key",
+    "email": {
+        "user": "fatboar.burgers@gmail.com",
+        "pass": "ghilesbegaz",
+        "port" : 465,
+        "host" :"smtp.gmail.com"
+    },
+    "reset_password_url": "http://localhost:4200/login/reset-password"
+}
