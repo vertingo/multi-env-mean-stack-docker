@@ -20,10 +20,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-global-proxy"
-      - "traefik.http.routers.back-secure.entrypoints=websecure"
-      - "traefik.http.routers.back-secure.rule=Host(`${IMAGE_SERVER_URL}`)"
-      - "traefik.http.routers.back-secure.service=back"
-      - "traefik.http.services.back.loadbalancer.server.port=${IMAGE_SERVER_PORT}" 
+      - "traefik.http.routers.server-image-secure.entrypoints=websecure"
+      - "traefik.http.routers.server-image-secure.rule=Host(`${IMAGE_SERVER_URL}`)"
+      - "traefik.http.routers.server-image-secure.service=server-image"
+      - "traefik.http.services.server-image.loadbalancer.server.port=${IMAGE_SERVER_PORT}" 
 volumes:
 # default dir on Ubuntu: /var/lib/docker/volumes
   node_modules_server_image: {}	

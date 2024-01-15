@@ -23,13 +23,13 @@ define setup_env
 		    if [ -f .env ]; \
 			then\
 				echo 'The .env already exist';\
-				echo 'You can type the command: make setup to configure and start your docker stack environment or make start to start only the docker stack';\
+				echo 'You can now type the command: make setup to configure and start your docker stack environment or make start if you have already installed docker and ufw';\
 				exit 1;\
 			else\
 				echo cp .env.dist.$$env .env;\
-				cp .env.dist.$$env .env;\
+				sudo cp .env.dist.$$env .env;\
 				sudo ln -s "$(PWD)/.env"  env/$$env/.env;\
-				echo 'You can now type the command: make setup to configure and start your docker stack environment';\
+				echo 'You can now type the command: make setup to configure and start your docker stack environment or make start if you have already installed docker and ufw';\
 			fi;\
 	fi   
 endef
@@ -77,11 +77,11 @@ BUILD_PROD = $(DOCKER_COMPOSE_PROD)
 	@if [ -f .env ]; \
 	then\
 		echo 'The .env.dist file has changed. Please check your .env file (this message will not be displayed again).';\
-		touch .env;\
+		sudo touch .env;\
 		#exit 1;\
 	else\
 		echo cp .env.dist.${ENV} .env;\
-		cp .env.dist.${ENV} .env;\
+		sudo cp .env.dist.${ENV} .env;\
 		sudo ln -s "$(PWD)/.env"  env/${ENV};\
 	fi
 
@@ -99,16 +99,18 @@ check-env: ## Check if env variable is set correctly
 		echo "*Error* env variable is not set";\
 		echo "*Error* Please set a ENV env variable with dev or prod value";\
 		echo "*Error* make setup-env or export ENV=dev or prod or local in console";\
+		echo "Remenber that you need to have an environment set up to make use of make setup, start, build, console, stop, kill, reset";\
 		exit 1;\
 	else\
-		echo "*Good* env variable is well setted";\
+		echo "*Good* ENV variable is well set and positionned on ${ENV}";\
+		echo "Remenber that you need to have an environment set up to make use of make setup, start, build, console, stop, kill, reset";\
 	fi
 
 
 setup: ## Install the environment tools and start the docker stack for the environment set up
 setup: check-env .env install-docker install-ufw start
 
-start: ## Start only the docker stack for the environment set up
+start: check-env ## Start only the docker stack for the environment set up
 	@if [ ${OS_NAME} == 'linux' ]; \
 	then\
 		sudo setfacl -dR -m u:$(whoami):rwX -m u:82:rwX -m u:100:rX ./;\
@@ -133,7 +135,7 @@ start: ## Start only the docker stack for the environment set up
 build-front: ## Build front react native
 	$(call build_front)
 
-build: ## Build project dependencies
+build: check-env ## Build project dependencies
 	@if [ ${ENV} == 'prod' ]; \
 	then\
 		$(EXEC_REACT_PROD) yarn build;\
@@ -155,9 +157,9 @@ build-test: check-env start build
 	$(EXEC_REACT_DEV) yarn test
 
 reset: ## Stop and start a fresh install of the project
-reset: setup-env check-env kill setup
+reset: check-env kill setup-env setup
 	
-stop: ## Stop only the docker stack for the environment set up
+stop: check-env ## Stop only the docker stack for the environment set up
 	@if [ ${ENV} == 'prod' ]; \
 	then\
 		$(DOCKER_COMPOSE_PROD) stop;\
@@ -166,11 +168,11 @@ stop: ## Stop only the docker stack for the environment set up
 		$(DOCKER_COMPOSE_PROD) stop;\
 	elif [ ${ENV} == 'local' ]; \
 	then\
-		cd env/local && make stop;\	
+		cd env/local && make stop;\
 	fi;\
 	
 
-kill: ## Destroy the env. Delete containers, volume, env variables and .env file
+kill: check-env ## Destroy the env. Delete containers, volume, env variables and .env file
 	@if [ ${ENV} == 'prod' ]; \
 	then\
 		$(DOCKER_COMPOSE_PROD) kill;\
@@ -183,7 +185,7 @@ kill: ## Destroy the env. Delete containers, volume, env variables and .env file
 		sudo rm .env && sudo rm env/dev/.env;\
 	elif [ ${ENV} == 'local' ]; \
 	then\
-		cd env/local && make kill;\	
+		cd env/local && make kill;\
 	fi;\
 
 
@@ -192,7 +194,7 @@ ifeq (console,$(firstword $(MAKECMDGOALS)))
   $(eval $(CONSOLE_ARGS):;@:)
 endif	
 
-console: ## Open a console in the passed container (e.g make console php)
+console: check-env ## Open a console in the passed container (e.g make console php)
 	@if [ ${ENV} == 'prod' ]; \
 	then\
 		$(DOCKER_COMPOSE_PROD) exec $(CONSOLE_ARGS) sh;\
@@ -201,7 +203,7 @@ console: ## Open a console in the passed container (e.g make console php)
 		$(DOCKER_COMPOSE_DEV) exec $(CONSOLE_ARGS) sh;\
 	elif [ ${ENV} == 'local' ]; \
 	then\
-		cd env/local && make console $(CONSOLE_ARGS);\	
+		cd env/local && make console $(CONSOLE_ARGS);\
 	fi;\
 
 

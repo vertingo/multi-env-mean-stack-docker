@@ -8,4 +8,6 @@ sudo chmod uga+x /usr/local/bin/docker-compose;
 
 echo "creation du réseau traefik"
 sudo docker network create --driver bridge traefik-global-proxy
-sudo docker network create --driver bridge MySocializusNetwork
+sudo docker network create --driver bridge MyMeanStackNetwork
+
+sudo usermod -aG docker ubuntu

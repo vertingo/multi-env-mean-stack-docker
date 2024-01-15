@@ -6,12 +6,9 @@ services:
       context: ../../script/docker/nginx
       dockerfile: DockerfileNginxFront
     environment:
-      - BACKEND_PORT=${BACKEND_PORT}
-      - BACKEND_URL=${BACKEND_URL}
-      - DATABASE_URL=${DATABASE_URL}
-#     - DATABASE_SSL=${DATABASE_SSL}
-      - FOREST_AUTH_SECRET=${FOREST_AUTH_SECRET}
-      - FOREST_ENV_SECRET=${FOREST_ENV_SECRET}  
+      - NGINX_FRONT_URL=${NGINX_FRONT_URL}
+      - NGINX_FRONT_PORT=${NGINX_FRONT_PORT}
+      - BACKEND_URL=${BACKEND_URL} 
     restart: always
     volumes:
       - ../../front-web/web-build:/usr/share/nginx/html/:z,ro
@@ -63,14 +60,32 @@ services:
     build:
       context: ../../backend
       dockerfile: Dockerfile.Prod
+      args:
+        BACKEND_PORT: ${BACKEND_PORT}
     environment:
+      - NODE_ENV=${NODE_ENV}
       - BACKEND_PORT=${BACKEND_PORT}
       - BACKEND_URL=${BACKEND_URL}
       - DATABASE_URL=${DATABASE_URL}
-      - REDIS_HOST=${REDIS_HOST}
 #     - DATABASE_SSL=${DATABASE_SSL}
+      - REDIS_HOST=${REDIS_HOST}
       - FOREST_AUTH_SECRET=${FOREST_AUTH_SECRET}
-      - FOREST_ENV_SECRET=${FOREST_ENV_SECRET}
+      - FOREST_ENV_SECRET=${FOREST_ENV_SECRET} 
+      - CRYPTO_SECRET=${CRYPTO_SECRET}
+      - SECRET_JWT=${SECRET_JWT}
+      - MAIL_MAILER=${MAIL_MAILER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_SUBJECT=${MAIL_SUBJECT}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - OAUTH2_CLIENT_ID=${OAUTH2_CLIENT_ID}
+      - OAUTH2_CLIENT_SECRET=${OAUTH2_CLIENT_SECRET}
+      - OAUTH2_REDIRECT_URI=${OAUTH2_REDIRECT_URI}
+      - OAUTH2_REFRESH_TOKEN=${OAUTH2_REFRESH_TOKEN}
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:

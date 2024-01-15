@@ -1,11 +1,14 @@
 FROM node:14-alpine
+
+ARG BACKEND_PORT=$BACKEND_PORT
+
 WORKDIR /usr/src/app
+
 COPY . .
 
-RUN npm cache verify
 RUN npm install -s
-RUN npm install -g nodemon
 
-EXPOSE ${APPLICATION_PORT}
+EXPOSE ${BACKEND_PORT}
+
 CMD ["npm", "start"]
 

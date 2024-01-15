@@ -80,10 +80,8 @@ app.use('/api/restaurants',  restaurantRoutes );
 require('./lib/db');
 
 
-
-
 //listen for requests 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.BACKEND_PORT || 4000;
 app.listen(PORT, () => {
     console.log(`Api listen on port ${PORT}.`);
 });
