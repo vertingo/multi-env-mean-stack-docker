@@ -1,0 +1,251 @@
+version: '3.7'
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+
+networks:
+  MySocializusNetwork:
+    driver: bridge
+  traefik-global-proxy:
+    external: true	
+
+####################################################
+              ## [ GRAFANA STACK ] ##
+####################################################
+services:
+  prometheus:
+    image: prom/prometheus:v2.36.2
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - 9090:9090
+    depends_on:
+      - cadvisor
+#     - pushgateway
+    networks:
+      - MySocializusNetwork
+      - traefik-global-proxy
+    deploy:
+      placement:
+        constraints:
+          - node.role==manager
+      restart_policy:
+        condition: on-failure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.prometheus-secure.entrypoints=websecure"
+      - "traefik.http.routers.prometheus-secure.rule=Host(`${PROMETHEUS_URL}`)"
+      - "traefik.http.routers.prometheus-secure.service=prometheus"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=${PROMETHEUS_PORT}"
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command: 
+      - '--path.procfs=/host/proc' 
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - 9100:9100
+    networks:
+      - MySocializusNetwork
+      - traefik-global-proxy
+    deploy:
+      mode: global
+      restart_policy:
+          condition: on-failure
+
+  alertmanager:
+    image: prom/alertmanager
+    ports:
+      - 9093:9093
+    volumes:
+      - "./alertmanager/:/etc/alertmanager/"
+    networks:
+      - MySocializusNetwork
+      - traefik-global-proxy
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    deploy:
+      placement:
+        constraints:
+           - node.role==manager
+      restart_policy:
+        condition: on-failure    
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    networks:
+      - MySocializusNetwork
+      - traefik-global-proxy
+    deploy:
+      mode: global
+      restart_policy:
+          condition: on-failure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.cadvisor-secure.entrypoints=websecure"
+      - "traefik.http.routers.cadvisor-secure.rule=Host(`${CADVISOR_URL}`)"
+      - "traefik.http.routers.cadvisor-secure.service=cadvisor"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=${CADVISOR_PORT}"
+
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    networks:
+      - MySocializusNetwork
+      - traefik-global-proxy
+    user: "472"
+    deploy:
+      placement:
+        constraints:
+          - node.role==manager
+      restart_policy:
+        condition: on-failure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-global-proxy"
+      - "traefik.http.routers.grafana-secure.entrypoints=websecure"
+      - "traefik.http.routers.grafana-secure.rule=Host(`${GRAFANA_URL}`)"
+      - "traefik.http.routers.grafana-secure.service=grafana"
+      - "traefik.http.services.grafana.loadbalancer.server.port=${GRAFANA_PORT}"
+
+  loki:
+    build: images/loki
+    ports:
+     - 3100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+    labels:
+     - traefik.enable=true
+     - traefik.http.routers.loki.rule=Host(`${LOKI_URL}`)
+     - traefik.http.services.loki.loadbalancer.server.port=${LOKI_PORT}
+     - traefik.http.routers.loki.entrypoints=websecure
+     - traefik.http.routers.loki.tls.certresolver=myresolver
+    networks:
+      - MySocializusNetwork
+      - traefik-global-proxy
+
+  promtail:
+    build: images/promtail
+    #ports:
+    # - 9080
+    volumes:
+     - /var/log:/var/log
+    labels:
+     - traefik.enable=true
+     - traefik.http.routers.promtail.rule=Host(`${PROMTAIL_URL}`)
+     - traefik.http.services.promtail.loadbalancer.server.port=${PROMTAIL_PORT}
+     - traefik.http.routers.promtail.entrypoints=websecure
+     - traefik.http.routers.promtail.tls.certresolver=myresolver
+    networks:
+      - MySocializusNetwork
+      - traefik-global-proxy
+  
+# pushgateway:
+#   image: prom/pushgateway
+#   deploy:
+#     mode: global
+#     restart_policy:
+#       condition: on-failure
+#   ports:
+#     - 9091:9091
+#   networks:
+#     - monitor-net
+
+  backup:
+ #  image: nold360/docker-borgbackup
+    build: docker/images/borg/
+    labels:
+      one.gnu.docker.backup: "False"
+   #  one.gnu.docker.backup.only: "/data,/more/data"
+   #  one.gnu.docker.backup.skip: "/more/tmp"
+   #  one.gnu.docker.backup.options: "-v --stats"
+    environment:
+      BORG_REPO: "/backup"
+   #  BORG_INIT_OPTIONS: "--encryption=none"
+   #  BORG_CREATE_OPTIONS: "-s --progress"
+   #  BORG_SKIP_VOLUME_SOURCES: "/proc,/sys,/var/run,/var/cache,/var/tmp"
+   #  BORG_BACKUP_ALL: "True"
+   #  BORG_BREAK_LOCK: "True"
+    volumes:
+     - "./borg/borg:/borg"
+     - "./borg/backup:/backup"
+     - "/var/run/docker.sock:/var/run/docker.sock"
+   # - "/srv/:/srv/"
+   # - "/var/lib/docker/:/var/lib/docker"
+  
+####################################################
+           ## [ LITTLE ELASTIC STACK ] ##
+####################################################
+# elasticsearch:
+#   image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+#   environment:
+#     - cluster.name=docker-cluster
+#     - bootstrap.memory_lock=true
+#     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#   volumes:
+#     - esdata:/usr/share/elasticsearch/data  
+#   ulimits:
+#     memlock:
+#       soft: -1
+#       hard: -1
+#   networks:
+#     - MySocializusNetwork
+#     - traefik-global-proxy
+#   labels:
+#     - traefik.enable=true
+#     - traefik.http.routers.elasticsearch.rule=Host(`${ELASTICSEARCH_URL}`)
+#     - traefik.http.services.elasticsearch.loadbalancer.server.port=${ELASTICSEARCH_PORT}
+#     - traefik.http.routers.elasticsearch.entrypoints=websecure
+#     - traefik.http.routers.elasticsearch.tls.certresolver=myresolver
+#   restart: always    
+
+# kibana:
+#   image: docker.elastic.co/kibana/kibana:6.3.2
+#   environment:
+#     - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+#   links: ['elasticsearch']
+#   depends_on: ['elasticsearch']
+#   networks:
+#     - MySocializusNetwork
+#     - traefik-global-proxy
+#   labels:
+#     - traefik.enable=true
+#     - traefik.http.routers.kibana.rule=Host(`${KIBANA_URL}`)
+#     - traefik.http.services.kibana.loadbalancer.server.port=${KIBANA_PORT}
+#     - traefik.http.routers.kibana.entrypoints=websecure
+#     - traefik.http.routers.kibana.tls.certresolver=myresolver
+#   restart: always   
+
+

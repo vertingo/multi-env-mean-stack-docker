@@ -1,0 +1,126 @@
+version: '3.8'
+services:
+  app:
+    container_name: mean_stack_container_front_web
+    build:
+      context: ../../../front-web
+      dockerfile: ../devops/docker/images/angular/Dockerfile
+      args:
+        - NODE_ENV=development
+    environment:
+      - FRONT_PORT=${FRONT_PORT}
+      - FRONT_URL=${FRONT_URL}
+      - BACKEND_URL=${BACKEND_URL}
+      - DEV_RUN_MODE=${DEV_RUN_MODE}
+      - IMAGE_SERVER_MODE=${IMAGE_SERVER_MODE}
+#   ports:
+#     - "${FRONT_PORT}:${FRONT_PORT}"
+    volumes:
+      - ../../../front-web/:/var/www/app:delegated # Link host directory to container
+      - ../../../front-web/package.json:/var/www/app/package.json
+      - ../../../front-web/package-lock.json:/var/www/app/package-lock.json
+      - node_modules_frontend:/var/www/app/node_modules
+    networks:
+      - MyMeanStackNetwork
+      - TraefikGlobalProxy
+    healthcheck:
+      disable: true  
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=TraefikGlobalProxy"
+      - "traefik.http.routers.app-secure.entrypoints=websecure"
+      - "traefik.http.routers.app-secure.rule=Host(`${FRONT_URL}`)"
+      - "traefik.http.routers.app-secure.service=app"
+      - "traefik.http.services.app.loadbalancer.server.port=${FRONT_PORT}"			
+  back:
+    container_name: mean_stack_container_backend
+    build:
+      context: ../../../backend
+      dockerfile: ../devops/docker/images/express/Dockerfile
+      args:
+        BACKEND_PORT: ${BACKEND_PORT}
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - BACKEND_URL=${BACKEND_URL}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+#     - DATABASE_SSL=${DATABASE_SSL}
+      - FOREST_AUTH_SECRET=${FOREST_AUTH_SECRET}
+      - FOREST_ENV_SECRET=${FOREST_ENV_SECRET}
+      - CRYPTO_SECRET=${CRYPTO_SECRET}
+      - SECRET_JWT=${SECRET_JWT}
+      - MAIL_MAILER=${MAIL_MAILER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_SUBJECT=${MAIL_SUBJECT}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - OAUTH2_CLIENT_ID=${OAUTH2_CLIENT_ID}
+      - OAUTH2_CLIENT_SECRET=${OAUTH2_CLIENT_SECRET}
+      - OAUTH2_REDIRECT_URI=${OAUTH2_REDIRECT_URI}
+      - OAUTH2_REFRESH_TOKEN=${OAUTH2_REFRESH_TOKEN}
+#   ports:
+#     - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ../../../backend/:/usr/src/app
+      - node_modules_backend:/usr/src/app/node_modules			
+    networks:
+      - MyMeanStackNetwork
+      - MongoDBNetwork
+      - TraefikGlobalProxy
+    depends_on: 
+      - mongodb    
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=TraefikGlobalProxy"
+      - "traefik.http.routers.back-secure.entrypoints=websecure"
+      - "traefik.http.routers.back-secure.rule=Host(`${BACKEND_URL}`)"
+      - "traefik.http.routers.back-secure.service=back"
+      - "traefik.http.services.back.loadbalancer.server.port=${BACKEND_PORT}"  
+#     - "traefik.http.routers.back-secure.middlewares=ipwhitelist-for-socializus-tools@file" # we apply our middleware
+  mongodb:
+    container_name: socializus_mongodb
+    image: mongo:6.0
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGO_DB_ADMIN_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_ADMIN_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_ADMIN_PASSWORD}
+      - MONGO_INITDB_CUSTOM_DATABASE=${MONGO_CUSTOM_DB}
+      - MONGO_INITDB_CUSTOM_USERNAME=${MONGO_DB_CUSTOM_USERNAME}
+      - MONGO_INITDB_CUSTOM_PASSWORD=${MONGO_DB_CUSTOM_PASSWORD}
+    volumes:
+#     seeding scripts
+      - ../../docker/script/docker/mongodb/mongo-entrypoint:/docker-entrypoint-initdb.d
+#     named volumes
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
+    networks:
+      - MongoDBNetwork
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=MongoDBNetwork"
+      - "traefik.http.routers.mongodb-secure.entrypoints=websecure"
+      - "traefik.http.routers.mongodb-secure.rule=Host(`${MONGODB_URL}`)"
+      - "traefik.http.routers.mongodb-secure.service=mongodb"
+      - "traefik.http.services.mongodb.loadbalancer.server.port=${MONGODB_PORT}"  
+      - "traefik.http.routers.mongodb-secure.middlewares=ipwhitelist-for-mean-stack-tools@file" # we apply our middleware      
+volumes:
+# default dir on Ubuntu: /var/lib/docker/volumes
+  mongodb:
+  mongoconfig:		
+  node_modules_frontend: {}		
+  node_modules_backend: {}	
+networks:
+  MySocializusNetwork:
+    driver: bridge
+  TraefikGlobalProxy:
+    external: true	
+  MongoDBNetwork:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

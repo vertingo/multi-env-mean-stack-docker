@@ -1,0 +1,3 @@
+FROM nginx:alpine
+
+COPY ../../conf/nginx/nginx-front.conf /etc/nginx/conf.d/

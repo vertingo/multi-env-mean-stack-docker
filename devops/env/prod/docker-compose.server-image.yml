@@ -1,0 +1,34 @@
+version: "3.7"
+
+services:
+  server-image:
+    container_name: server_image
+    build:
+      context: ../../../server-image
+      dockerfile: ../devops/docker/images/server-image/Dockerfile
+    environment:
+      - IMAGE_SERVER_PORT=${IMAGE_SERVER_PORT}
+      - IMAGE_SERVER_URL=${IMAGE_SERVER_URL}
+#   ports:
+#     - "${IMAGES_SERVER_PORT}:${IMAGES_SERVER_PORT}"
+    volumes:
+      - ../../../server-image/:/src
+      - node_modules_server_image:/src/node_modules			
+    networks:
+      - MyMeanStackNetwork
+      - TraefikGlobalProxy 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=TraefikGlobalProxy"
+      - "traefik.http.routers.server-image-secure.entrypoints=websecure"
+      - "traefik.http.routers.server-image-secure.rule=Host(`${IMAGE_SERVER_URL}`)"
+      - "traefik.http.routers.server-image-secure.service=server-image"
+      - "traefik.http.services.server-image.loadbalancer.server.port=${IMAGE_SERVER_PORT}" 
+#     - "traefik.http.routers.server-image-secure.middlewares=ipwhitelist-for-socializus-tools@file" # we apply our middleware
+volumes:
+# default dir on Ubuntu: /var/lib/docker/volumes
+  node_modules_server_image: {}	
+networks:
+  TraefikGlobalProxy:
+    external: true
+

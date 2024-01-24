@@ -1,0 +1,47 @@
+version: "3.7"
+
+
+x-logging: &loki-logging
+  driver: json-file
+  options:
+    tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+services:
+  traefik:
+    image: traefik:2.6
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - TraefikGlobalProxy
+    ports:
+#     - 80:80
+      - 443:443
+    environment:
+      OVH_APPLICATION_KEY: ${OVH_APPLICATION_KEY}
+      OVH_APPLICATION_SECRET: ${OVH_APPLICATION_SECRET}
+      OVH_CONSUMER_KEY: ${OVH_CONSUMER_KEY}
+      OVH_ENDPOINT: ${OVH_ENDPOINT} 
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../../docker/conf/traefik/traefik.yml:/traefik.yml:ro
+      - ../../docker/conf/traefik/configurations:/configurations
+      - /dev/disk/by-id/google-traefiksslpd:/etc/forge/traefik/acme
+      - ./letsencrypt:/letsencrypt
+      - ./traefik/logs:/traefik/logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=TraefikGlobalProxy"
+      - "traefik.http.routers.traefik-secure.entrypoints=websecure"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik.${FORGE_BASE_URL}`)"
+#     - "traefik.http.routers.traefik-secure.middlewares=user-auth@file"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+#     - "traefik.http.routers.traefik-secure.middlewares=ipwhitelist-for-socializus-tools@file" # we apply our middleware
+    logging: *loki-logging
+
+networks:
+  TraefikGlobalProxy:
+    external: true
+

@@ -105,5 +105,5 @@ dist
 
 .env
 
-template-env-files
+local-tools
 

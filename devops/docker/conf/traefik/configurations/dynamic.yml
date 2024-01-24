@@ -1,0 +1,34 @@
+# Dynamic configuration
+#http:
+#  middlewares:
+#    secureHeaders:
+#      headers:
+#        sslRedirect: true
+#        forceSTSHeader: true
+#        stsIncludeSubdomains: true
+#        stsPreload: true
+#        stsSeconds: 31536000
+
+#    user-auth:
+#      basicAuth:
+#        users:
+#          # default username/password
+#          - "username:$2y$10$RNmdMYe75ZUJNTpr9UBI/eUmyLi9ob/t2q6EjNJw1Z/rtNUK7SwcO"
+
+
+http:
+  routers:
+    websecure:
+      rule: Host(`mean-stack-dev.fr`)
+      entrypoints:
+        - websecure
+      service: api@internal
+      tls:
+        certResolver: default
+        domains:
+          - main: '*.mean-stack-dev.fr'
+  middlewares:
+    ipwhitelist-for-mean-stack-tools:
+      ipWhiteList:
+        sourceRange:
+          - "92.184.119.129"

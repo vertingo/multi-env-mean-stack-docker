@@ -1,0 +1,69 @@
+log:
+  level: INFO
+
+api:
+  dashboard: true
+  insecure: false
+
+entryPoints:
+  web:
+    address: :80
+# Activation de la redirection auto en https
+#    http:
+#      redirections:
+#        entryPoint:
+#          to: websecure
+
+  websecure:
+    address: :443
+    http:
+      tls: true
+  metrics:
+    address: :8082
+
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+    entryPoint: metrics
+
+tracing:
+  serviceName: traefik
+
+# Limiting the Logs to Specific Fields
+accessLog:
+  filePath: "/traefik/logs/access.log"
+  format: json
+  fields:
+    defaultMode: keep
+    names:
+      ClientUsername: drop
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: redact
+        Authorization: drop
+        Content-Type: keep
+
+certificatesResolvers:
+  caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  default:
+    acme:
+      email: "admin-support@niji.fr"
+      storage: "/etc/forge/traefik/acme.json"
+      dnsChallenge:
+        provider: "ovh"
+        delayBeforeCheck: "0s"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    filename: /configurations/dynamic.yml
