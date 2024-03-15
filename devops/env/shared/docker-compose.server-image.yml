@@ -9,6 +9,7 @@ services:
     environment:
       - IMAGE_SERVER_PORT=${IMAGE_SERVER_PORT}
       - IMAGE_SERVER_URL=${IMAGE_SERVER_URL}
+      - IMAGE_SERVER_CORS_ORIGINS=${IMAGE_SERVER_CORS_ORIGINS}
 #   ports:
 #     - "${IMAGES_SERVER_PORT}:${IMAGES_SERVER_PORT}"
     volumes:

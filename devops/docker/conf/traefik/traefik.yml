@@ -55,11 +55,16 @@ certificatesResolvers:
   caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
   default:
     acme:
-      email: "admin-support@niji.fr"
-      storage: "/etc/forge/traefik/acme.json"
+      email: "admin@socializus.net"
+      storage: "acme/acme.json"
       dnsChallenge:
         provider: "ovh"
         delayBeforeCheck: "0s"
+
+experimental:
+  localPlugins:
+    maintenance:
+      moduleName: github.com/programic/traefik-maintenance-plugin
 
 providers:
   docker:
@@ -67,3 +72,5 @@ providers:
     exposedByDefault: false
   file:
     filename: /configurations/dynamic.yml
+
+

@@ -1,0 +1,167 @@
+version: '3.8'
+services:
+  adminjs:
+    container_name: socializus_adminjs
+    build:
+      context: ../../../back-office/adminjs
+      dockerfile: ../../devops/docker/images/adminjs/Dockerfile
+    environment:
+      - SERVER=${SERVER} # EXPRESS HAPIJS FASTIFY NESTJS
+      - SESSION_SECRET=${SESSION_SECRET}
+      - LOCALE=${LOCALE}
+      - MONGO_DATABASE_URL=${MONGO_DATABASE_URL}
+      - POSTGRES_DATABASE_URL=${POSTGRES_DATABASE_URL}
+      - MYSQL_DATABASE_URL=${MYSQL_DATABASE_URL}
+      - DATABASE_LOGGING=${DATABASE_LOGGING}
+      - DATABASE_SYNC=${DATABASE_SYNC}
+      - DISABLE_ADMINJS_ACTIONS=${DISABLE_ADMINJS_ACTIONS}
+      - GITHUB_URL=${GITHUB_URL}
+      - SLACK_URL=${SLACK_URL}
+      - DOCUMENTATION_URL=${DOCUMENTATION_URL}
+      - STORYBOOK_URL=${STORYBOOK_URL}
+    depends_on:
+  #   - mongodb
+      - postgres_db
+      - mysql_db
+    networks:
+      - MySocializusNetwork
+      - MongoDBNetwork
+      - TraefikGlobalProxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=TraefikGlobalProxy"
+      - "traefik.http.routers.adminjs-secure.entrypoints=websecure"
+      - "traefik.http.routers.adminjs-secure.rule=Host(`${ADMINJS_URL}`)"
+      - "traefik.http.routers.adminjs-secure.service=adminjs"
+      - "traefik.http.services.adminjs.loadbalancer.server.port=${ADMINJS_PORT}"     
+  postgres_db:
+    container_name: socializus-adminjs-postgres
+    image: postgres
+    environment:
+      - POSTGRES_DB=adminjs
+      - POSTGRES_USER=adminjs
+      - POSTGRES_PASSWORD=adminjs
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5435:5432"
+    networks:
+      - MySocializusNetwork
+      - MongoDBNetwork
+      - TraefikGlobalProxy
+    volumes:
+      - postgres_db_adminjs_app:/var/lib/postgresql/data
+  mysql_db:
+    container_name: socializus-adminjs-mysql
+    image: mysql
+    environment:
+      MYSQL_USER: adminjs
+      MYSQL_PASSWORD: adminjs
+      MYSQL_ROOT_PASSWORD: adminjs
+      MYSQL_DATABASE: adminjs
+    ports:
+      - "3308:3306"
+    networks:
+      - MySocializusNetwork
+      - MongoDBNetwork
+      - TraefikGlobalProxy
+    volumes:
+      - mysql_db_adminjs_app:/var/lib/mysql
+# mongo-express:
+#   container_name: socializus_mongo_express
+#   image: mongo-express
+#   environment:
+#     - ME_CONFIG_MONGODB_SERVER=socializus_mongodb
+#     - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+#     - ME_CONFIG_MONGODB_URL=${DATABASE_ADMIN_URL}
+#     - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ADMINUSERNAME}
+#     - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ADMINPASSWORD}
+#     - ME_CONFIG_BASICAUTH_USERNAME=${BO_BASICAUTH_USERNAME}
+#     - ME_CONFIG_BASICAUTH_PASSWORD=${BO_BASICAUTH_PASSWORDE}
+#   depends_on:
+#     - mongodb
+#   networks:
+#     - MySocializusNetwork
+#     - MongoDBNetwork
+#     - TraefikGlobalProxy
+#   labels:
+#     - "traefik.enable=true"
+#     - "traefik.docker.network=TraefikGlobalProxy"
+#     - "traefik.http.routers.mongo-express-secure.entrypoints=websecure"
+#     - "traefik.http.routers.mongo-express-secure.rule=Host(`${MONGO_EXPRESS_URL}`)"
+#     - "traefik.http.routers.mongo-express-secure.service=mongo-express"
+#     - "traefik.http.services.mongo-express.loadbalancer.server.port=${MONGO_EXPRESS_PORT}"      
+# keystone:
+#   container_name: socializus_keystonejs
+#   build:
+#     context: ../../../back-office/keystone
+#     dockerfile: ../../devops/docker/images/keystone/Dockerfile
+#   image: zheeeng/keystonejs
+#   depends_on:
+#     - mongodb
+#   environment:
+#     - MONGO_URI=mongodb://admin:admin@mongodb:27017/
+#     - CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+#     - MONGO_PORT_27017_TCP_ADDR=mongodb
+#     - MONGO_PORT_27017_TCP_PORT=27017
+#   networks:
+#     - MySocializusNetwork
+#     - MongoDBNetwork
+#     - TraefikGlobalProxy
+#   volumes:
+#     - ../../../back-office/keystone:/usr/src/app
+#     - node_modules_backoffice:/usr/src/app/node_modules  
+#   labels:
+#     - "traefik.enable=true"
+#     - "traefik.docker.network=TraefikGlobalProxy"
+#     - "traefik.http.routers.keystone-secure.entrypoints=websecure"
+#     - "traefik.http.routers.keystone-secure.rule=Host(`${KEYSTONE_URL}`)"
+#     - "traefik.http.routers.keystone-secure.service=keystone"
+#     - "traefik.http.services.keystone.loadbalancer.server.port=${KEYSTONE_PORT}"
+# strapi:
+#   container_name: socializus_strapi
+#   image: strapi/strapi
+#   build:
+#     context: ../../
+#     dockerfile: docker/images/strapi/Dockerfile
+#   environment:
+#     - DATABASE_CLIENT=mongo
+#     - DATABASE_HOST=mongodb
+#     - DATABASE_PORT=27017
+#     - DATABASE_NAME=admin
+#     - DATABASE_USERNAME=admin
+#     - DATABASE_PASSWORD=admin
+#     - AUTHENTICATION_DATABASE=admin
+#   networks:
+#     - MySocializusNetwork
+#     - MongoDBNetwork
+#     - TraefikGlobalProxy
+#   ports:
+#     - 1337:1337
+#   volumes:
+#     - ./app:/srv/app
+#   depends_on:
+#     - mongodb
+#   labels:
+#     - "traefik.enable=true"
+#     - "traefik.docker.network=TraefikGlobalProxy"
+#     - "traefik.http.routers.strapi-secure.entrypoints=websecure"
+#     - "traefik.http.routers.strapi-secure.rule=Host(`${STRAPI_URL}`)"
+#     - "traefik.http.routers.strapi-secure.service=strapi"
+#     - "traefik.http.services.strapi.loadbalancer.server.port=${STRAPI_PORT}"
+volumes:
+# default dir on Ubuntu: /var/lib/docker/volumes
+  postgres_db_adminjs_app:
+  mysql_db_adminjs_app:
+networks:
+  MySocializusNetwork:
+    driver: bridge
+  TraefikGlobalProxy:
+    external: true	
+  MongoDBNetwork:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+
+ 
+

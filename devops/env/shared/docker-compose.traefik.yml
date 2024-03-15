@@ -22,8 +22,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../../docker/conf/traefik/traefik.yml:/traefik.yml:ro
       - ../../docker/conf/traefik/configurations:/configurations
-      - /dev/disk/by-id/google-traefiksslpd:/etc/forge/traefik/acme
+      - /dev/disk/by-id/google-traefiksslpd:/acme
       - ./letsencrypt:/letsencrypt
+      - ./traefik/logs:/traefik/logs
+      - ../../docker/conf/traefik/traefik-maintenance-plugin:/plugins-local/src/github.com/programic/traefik-maintenance-plugin
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=TraefikGlobalProxy"

@@ -15,20 +15,31 @@
 #          # default username/password
 #          - "username:$2y$10$RNmdMYe75ZUJNTpr9UBI/eUmyLi9ob/t2q6EjNJw1Z/rtNUK7SwcO"
 
-
 http:
   routers:
     websecure:
-      rule: Host(`mean-stack-dev.fr`)
+      rule: Host(`traefik.{{ .Env.DOMAIN }}`)
       entrypoints:
         - websecure
       service: api@internal
       tls:
-        certResolver: default
+        certResolver: "default"
         domains:
-          - main: '*.mean-stack-dev.fr'
+          - main: '{{ .Env.DOMAIN }}'
+            sans:
+              - '*.{{ .Env.DOMAIN }}'
   middlewares:
-    ipwhitelist-for-mean-stack-tools:
+    ipwhitelist-for-socializus-tools:
       ipWhiteList:
         sourceRange:
           - "92.184.119.129"
+    maintenance: # Middleware name
+      plugin:
+        maintenance: # Plugin name
+          informUrl: "http://inform/inform.json"
+          informInterval: 5
+          informTimeout: 3    
+    user-auth:
+      basicAuth:
+        users:
+           - "traefik-admin:$apr1$6ZgvBsR1$RynsroUdomQEQOBt8vp2I1"       

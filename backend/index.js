@@ -15,7 +15,7 @@ const contactRoutes = require('./routes/contact');
 const restaurantRoutes = require('./routes/restaurant');
 
 const redis = require('./utils/redis');
-const Logger = require('./logging')
+const Logger = require('./utils/logger');
 
 //metrics
 const makeApiMiddleware = require("api-express-exporter"); 

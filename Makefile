@@ -35,8 +35,8 @@ define setup_env
 				sudo cp .env.dist.$$env .env;\
 				echo "ln $(PWD)/.env  devops/env/$$env/.env";\
 				sudo ln -s "$(PWD)/.env"  devops/env/$$env/.env;\
-				echo "cp $(PWD)/front-mobile/backendconnect/hostname.$$env.js front-mobile/backendconnect/hostname.js";\
-				sudo cp "$(PWD)/front-mobile/backendconnect/hostname.$$env.js" front-mobile/backendconnect/hostname.js;\
+				echo "cp $(PWD)/frontend/hostName/hostName.$$env.js frontend/hostName/hostName.js";\
+				sudo cp "$(PWD)/frontend/hostName/hostName.$$env.js" frontend/hostName/hostName.js;\
 				if [ $$env == 'prod' ]; \
 				then\
 					echo "ln $(PWD)/.env.dist.elastdocker  devops/env/monitoring/elastdocker/.env";\
@@ -54,17 +54,37 @@ define setup_env
 endef
 
 
+define configure_traefik_domain
+    if [ -n ${FORGE_BASE_URL} ]; \
+	then\
+	    if [ ! -f "devops/docker/conf/traefik/configurations/dynamic.yml" ]; \
+		then\
+			sed "s/{{ \.Env\.DOMAIN }}/${FORGE_BASE_URL}/g" devops/docker/conf/traefik/configurations/dynamic.yml.template > devops/docker/conf/traefik/configurations/dynamic.yml;\
+			echo "Traefik configuration for ${FORGE_BASE_URL} well configured! Thank you!";\
+	    else\
+			echo "dynamic.yml file already exist"; \
+		fi;\
+	else\
+	    echo Warning: FORGE_BASE_URL isn\'t defined;\
+	fi
+endef
+
+
 define build_front
-	if [ ! -d "front-web/web-build" ]; \
+	if [ ! -d "frontend/web-build" ]; \
 	then\
 		echo "Just a little time. I am building... the front react native. After this i will start the production docker stack";\
-		docker run --rm --workdir /app -v $(PWD)/front-web:/app -v $(PWD)/front-mobile:/front-mobile -e DEV_RUN_MODE=${DEV_RUN_MODE} -e IMAGE_SERVER_MODE=${IMAGE_SERVER_MODE} node:20 /bin/bash -c "npm install; npm run build";\
+		docker run --rm --workdir /app -v $(PWD)/frontend:/app -e DEV_RUN_MODE=${DEV_RUN_MODE} -e IMAGE_SERVER_MODE=${IMAGE_SERVER_MODE} -e GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY} node:20 /bin/bash -c "npm install; npm run build";\
 	fi
 endef
 
 define build_front_from_make_target
+     echo "sudo rm frontend/hostName/hostName.js";\
+	 sudo rm frontend/hostName/hostName.js;\
+	 echo "cp $(PWD)/frontend/hostName/hostName.${ENV}.js frontend/hostName/hostName.js";\
+	 sudo cp "$(PWD)/frontend/hostName/hostName.${ENV}.js" frontend/hostName/hostName.js;\
      echo "Just a little time. I am building... the front react native. After this i will start the production docker stack";\
-	 docker run --rm --workdir /app -v $(PWD)/front-web:/app -v $(PWD)/front-mobile:/front-mobile -e DEV_RUN_MODE=${DEV_RUN_MODE} -e IMAGE_SERVER_MODE=${IMAGE_SERVER_MODE} node:20 /bin/bash -c "npm install; npm run build"
+	 docker run --rm --workdir /app -v $(PWD)/frontend:/app -e DEV_RUN_MODE=${DEV_RUN_MODE} -e IMAGE_SERVER_MODE=${IMAGE_SERVER_MODE} -e GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY} node:20 /bin/bash -c "npm install; npm run build"
 endef
 
 OS_INFORMATION=$(shell uname -s)
@@ -84,14 +104,24 @@ ifneq (,$(findstring MINGW,$(OS_INFORMATION)))
 OS_NAME = win
 endif
 
-DOCKER_COMPOSE_FILES_DEV = -f devops/env/dev/docker-compose.traefik.yml -f devops/env/dev/docker-compose.server-image.yml -f devops/env/dev/docker-compose.dev.yml 
+DOCKER_COMPOSE_FILES_DEV = -f devops/env/dev/docker-compose.traefik.yml -f devops/env/dev/docker-compose.dev.yml 
 ifneq ("$(wildcard devops/env/dev/docker-compose-${OS_NAME}.yml)","")
-DOCKER_COMPOSE_FILES_DEV = -f devops/env/dev/docker-compose.traefik.yml -f devops/env/dev/docker-compose.server-image.yml -f devops/env/dev/docker-compose.dev.yml -f devops/env/dev/docker-compose-${OS_NAME}.yml
+DOCKER_COMPOSE_FILES_DEV = -f devops/env/dev/docker-compose.traefik.yml -f devops/env/dev/docker-compose.dev.yml -f devops/env/dev/docker-compose-${OS_NAME}.yml
 endif
 
-DOCKER_COMPOSE_FILES_PROD = -f devops/env/prod/docker-compose.traefik.yml -f devops/env/prod/docker-compose.server-image.yml -f devops/env/prod/docker-compose.prod.yml
+DOCKER_COMPOSE_FILES_PROD = -f devops/env/prod/docker-compose.traefik.yml -f devops/env/prod/docker-compose.prod.yml
 ifneq ("$(wildcard devops/env/prod/docker-compose-${OS_NAME}.yml)","")
-DOCKER_COMPOSE_FILES_PROD = -f devops/env/prod/docker-compose.traefik.yml -f devops/env/prod/docker-compose.server-image.yml -f devops/env/prod/docker-compose.prod.yml -f devops/env/prod/docker-compose-${OS_NAME}.yml
+DOCKER_COMPOSE_FILES_PROD = -f devops/env/prod/docker-compose.traefik.yml -f devops/env/prod/docker-compose.prod.yml -f devops/env/prod/docker-compose-${OS_NAME}.yml
+endif
+
+DOCKER_COMPOSE_FILES_BACK-OFFICE = -f devops/env/prod/docker-compose.back-office.yml
+ifneq ("$(wildcard devops/env/prod/docker-compose-${OS_NAME}.yml)","")
+DOCKER_COMPOSE_FILES_BACK-OFFICE = -f devops/env/prod/docker-compose.back-office.yml -f devops/env/prod/docker-compose-${OS_NAME}.yml
+endif
+
+DOCKER_COMPOSE_FILES_MAINTENANCE = -f devops/env/prod/docker-compose.traefik.yml -f devops/env/prod/docker-compose.maintenance.yml
+ifneq ("$(wildcard devops/env/prod/docker-compose-${OS_NAME}.yml)","")
+DOCKER_COMPOSE_FILES_MAINTENANCE = -f devops/env/prod/docker-compose.traefik.yml -f devops/env/prod/docker-compose.maintenance.yml -f devops/env/prod/docker-compose-${OS_NAME}.yml
 endif
 
 DOCKER_COMPOSE_FILES_TEST = -f devops/env/test/docker-compose.test.yml 
@@ -106,6 +136,10 @@ BUILD_DEV = $(DOCKER_COMPOSE_DEV)
 DOCKER_COMPOSE_PROD = docker-compose ${DOCKER_COMPOSE_FILES_PROD}
 EXEC_NGINX_PROD = $(DOCKER_COMPOSE_PROD) exec -T nginx-front
 BUILD_PROD = $(DOCKER_COMPOSE_PROD)
+
+DOCKER_COMPOSE_BACK-OFFICE = docker-compose ${DOCKER_COMPOSE_FILES_BACK-OFFICE}
+
+DOCKER_COMPOSE_MAINTENANCE = docker-compose ${DOCKER_COMPOSE_FILES_MAINTENANCE}
 
 DOCKER_COMPOSE_TEST = docker-compose ${DOCKER_COMPOSE_FILES_TEST}
 
@@ -151,15 +185,25 @@ start: check-env ## Start only the docker MERN stack for the environment set up
 	@if [ ${ENV} == 'prod' ]; \
 	then\
 		$(call build_front);\
-		$(DOCKER_COMPOSE_PROD) up -d --remove-orphans;\
+		$(DOCKER_COMPOSE_PROD) up -d;\
+		sudo ufw-docker allow traefik;\
 	elif [ ${ENV} == 'dev' ]; \
 	then\
-		$(DOCKER_COMPOSE_DEV) up -d --remove-orphans;\
+		$(DOCKER_COMPOSE_DEV) up -d;\
+		sudo ufw-docker allow traefik;\
 	elif [ ${ENV} == 'local' ]; \
 	then\
 		echo "cd devops/env/local && setup.sh -v v2 -s wsl && make local-stack-react-express-mongo";\
 		cd devops/env/local && setup.sh -v v2 -s wsl && make local-stack-react-express-mongo;\
 	fi
+
+start-back-office: check-env ## Start only the docker back-office stack for the prod environment 
+	@if [ ${ENV} == 'prod' ]; \
+	then\
+	    $(DOCKER_COMPOSE_BACK-OFFICE) up -d;\
+	else\
+		echo "This is not the environment for back-office. You have to do it only on prod/preprod. Change your env setup to do it.";\
+	fi	
 
 start-monitoring: check-env ## Start only the docker monitoring stack for the prod environment 
 	@if [ ${ENV} == 'prod' ]; \
@@ -175,15 +219,113 @@ start-sonarqube: check-env ## Start only the docker sonarqube test stack for the
 	then\
 		echo "cp .env.dist.test devops/env/test/.env";\
 		sudo cp .env.dist.test devops/env/test/.env;\
-		$(DOCKER_COMPOSE_TEST) up -d --remove-orphans;\
+		$(DOCKER_COMPOSE_TEST) up -d;\
 	elif [ ${ENV} == 'local' ]; \
 	then\
 		echo "cp .env.dist.test devops/env/test/.env";\
 		sudo cp .env.dist.test devops/env/test/.env;\
-		$(DOCKER_COMPOSE_TEST) up -d --remove-orphans;\
+		$(DOCKER_COMPOSE_TEST) up -d;\
 	else\
 		echo "This is not the environment for testing. You have to do it before prod. Change your env setup to do it.";\
 	fi
+
+
+update-front: check-env ## Update only the frontend stack following a git pull
+	@if [ ${ENV} == 'prod' ]; \
+	then\
+	    echo "Env PROD. Rebuild only the frontend in progress...";\
+		$(call build_front_from_make_target);\
+		$(DOCKER_COMPOSE_PROD) up --no-deps -d nginx-front;\
+		docker system prune -f;\
+	elif [ ${ENV} == 'dev' ]; \
+	then\
+	    echo "Env DEV. Update of the dev frontend docker container in progress...";\
+		$(DOCKER_COMPOSE_DEV) up --no-deps -d app;\
+		docker system prune -f;\
+	elif [ ${ENV} == 'local' ]; \
+	then\
+	    echo "Update of the local docker front stack in progress...";\
+		cd devops/env/local && make update-local-stack-react-express-mongo;\
+	fi	
+
+update-back: check-env  ## Update only the backend stack following a git pull
+	@if [ ${ENV} == 'prod' ]; \
+	then\
+	    echo "Env PROD. Update of the prod backend docker container in progress...";\
+		$(DOCKER_COMPOSE_PROD) up --no-deps -d back;\
+		docker system prune -f;\
+	elif [ ${ENV} == 'dev' ]; \
+	then\
+	    echo "Env DEV. Update of the dev backend docker container in progress...";\
+		$(DOCKER_COMPOSE_DEV) up --no-deps -d back;\
+		docker system prune -f;\
+	elif [ ${ENV} == 'local' ]; \
+	then\
+	    echo "Update of the local docker react native stack in progress...";\
+		cd devops/env/local && make update-local-stack-react-express-mongo;\
+	fi	
+
+
+update-front-back: check-env ## Update only the frontend and backend stack following a git pull
+	@if [ ${ENV} == 'prod' ]; \
+	then\
+	    echo "Env PROD. Rebuild of the frontend and update of the backend docker container in progress...";\
+		$(call build_front_from_make_target);\
+		$(DOCKER_COMPOSE_PROD) up --no-deps -d nginx-front;\
+		$(DOCKER_COMPOSE_PROD) up --no-deps -d back;\
+		docker system prune -f;\
+	elif [ ${ENV} == 'dev' ]; \
+	then\
+	    echo "Env DEV. Update of the frontend and backend docker container in progress...";\
+		$(DOCKER_COMPOSE_DEV) up --no-deps -d app;\
+		$(DOCKER_COMPOSE_DEV) up --no-deps -d back;\
+		docker system prune -f;\
+	elif [ ${ENV} == 'local' ]; \
+	then\
+	    echo "Update of the local docker react native stack in progress...";\
+		cd devops/env/local && make update-local-stack-react-express-mongo;\
+	fi	
+
+
+update-all-mern-stack: check-env ## Update all the MERN Stack following a git pull (Put maintenance mode, rebuild the front, update the rest of the docker stack, and stop maintenance mode)
+	@if [ ${ENV} == 'prod' ]; \
+	then\
+	    echo "Env PROD. Put maintenance mode, rebuild the front, update the rest of the docker stack, and stop maintenance mode in progress...";\
+	    $(DOCKER_COMPOSE_PROD) stop;\
+		$(DOCKER_COMPOSE_MAINTENANCE) up -d;\
+		sudo ufw-docker allow traefik;\
+		$(call build_front_from_make_target);\
+		$(DOCKER_COMPOSE_PROD) build --force-rm;\
+		$(DOCKER_COMPOSE_MAINTENANCE) kill;\
+		$(DOCKER_COMPOSE_PROD) up -d;\
+		docker system prune -f;\
+		sudo ufw-docker allow traefik;\
+	elif [ ${ENV} == 'dev' ]; \
+	then\
+	    echo "Env DEV. Update of the dev local docker react native stack in progress...";\
+		$(DOCKER_COMPOSE_DEV) stop;\
+		$(DOCKER_COMPOSE_DEV) build --force-rm;\
+		$(DOCKER_COMPOSE_DEV) up -d;\
+		docker system prune -f;\
+	elif [ ${ENV} == 'local' ]; \
+	then\
+	    echo "Update of the local docker react native stack in progress...";\
+		cd devops/env/local && make update-local-stack-react-express-mongo;\
+	fi	
+
+
+update-back-office: check-env ## Update only the back-office stack following a git pull
+	@if [ ${ENV} == 'prod' ]; \
+	then\
+	    echo "Env PROD. Update the back-office stack in progress...";\
+	    $(DOCKER_COMPOSE_BACK-OFFICE) stop;\
+		$(DOCKER_COMPOSE_BACK-OFFICE) build --force-rm;\
+		$(DOCKER_COMPOSE_BACK-OFFICE) up -d;\
+		docker system prune -f;\
+	else\
+		echo "This is not the environment for back-office. You have to do it only on prod/preprod. Change your env setup to do it.";\
+	fi
+
 
 kill: check-env ## Destroy all(MERN, Test, and Monitoring Stack) env. Delete containers, volume, env variables and .env file
 	@if [ ${ENV} == 'prod' ]; \
@@ -205,8 +347,10 @@ kill: check-env ## Destroy all(MERN, Test, and Monitoring Stack) env. Delete con
 		    echo "rm devops/env/monitoring/grafana/.env";\
 			sudo rm devops/env/monitoring/grafana/.env;\
 		fi;\
-		echo "rm .env && sudo rm devops/env/prod/.env && sudo rm front-mobile/backendconnect/hostname.js";\
-		sudo rm .env && sudo rm devops/env/prod/.env && sudo rm front-mobile/backendconnect/hostname.js;\
+		echo "rm .env && sudo rm devops/env/prod/.env && sudo rm frontend/hostName/hostName.js";\
+		sudo rm .env && sudo rm devops/env/prod/.env && sudo rm frontend/hostName/hostName.js;\
+		echo "rm devops/docker/conf/traefik/configurations/dynamic.yml";\
+		sudo rm devops/docker/conf/traefik/configurations/dynamic.yml;\
 	elif [ ${ENV} == 'dev' ]; \
 	then\
 		$(DOCKER_COMPOSE_DEV) kill;\
@@ -218,8 +362,10 @@ kill: check-env ## Destroy all(MERN, Test, and Monitoring Stack) env. Delete con
 			echo "rm devops/env/test/.env";\
 			sudo rm devops/env/test/.env;\
 		fi;\
-		echo "rm .env && sudo rm devops/env/dev/.env && sudo rm front-mobile/backendconnect/hostname.js";\
-		sudo rm .env && sudo rm devops/env/dev/.env && sudo rm front-mobile/backendconnect/hostname.js;\
+		echo "rm .env && sudo rm devops/env/dev/.env && sudo rm frontend/hostName/hostName.js";\
+		sudo rm .env && sudo rm devops/env/dev/.env && sudo rm frontend/hostName/hostName.js;\
+		echo "rm devops/docker/conf/traefik/configurations/dynamic.yml";\
+		sudo rm devops/docker/conf/traefik/configurations/dynamic.yml;\
 	elif [ ${ENV} == 'local' ]; \
 	then\
 		cd devops/env/local && make kill;\
@@ -230,9 +376,22 @@ kill: check-env ## Destroy all(MERN, Test, and Monitoring Stack) env. Delete con
 			echo "rm devops/env/test/.env";\
 			sudo rm devops/env/test/.env;\
 		fi;\
-		echo "rm .env && sudo rm devops/env/local/.env && sudo rm front-mobile/backendconnect/hostname.js";\
-		sudo rm .env && sudo rm devops/env/local/.env && sudo rm front-mobile/backendconnect/hostname.js;\
+		echo "rm .env && sudo rm devops/env/local/.env && sudo rm frontend/hostName/hostName.js";\
+		sudo rm .env && sudo rm devops/env/local/.env && sudo rm frontend/hostName/hostName.js;\
 	fi;\
+
+
+
+kill-back-office: check-env ## Destroy the back-office stack. Delete containers, volume, env variables and .env file
+	@if [ ${ENV} == 'prod' ]; \
+	then\
+	    echo "Destroy back-office stack in progress...";\
+		$(DOCKER_COMPOSE_BACK-OFFICE) kill;\
+		$(DOCKER_COMPOSE_BACK-OFFICE) down --volumes;\
+	else\
+		echo "This is not the environment for back-office. You have to do it only on prod/preprod. Change your env setup to do it.";\
+	fi
+
 
 kill-monitoring: check-env ## Destroy the monitoring env. Delete containers, volume, env variables and .env file
 	sudo bash devops/env/monitoring/grafana/setup.sh --kill
@@ -246,7 +405,7 @@ kill-sonarqube: check-env ## Destroy the sonarqube env. Delete containers, volum
 		then\
 		    echo "Destroy test stack in progress...";\
 		    $(DOCKER_COMPOSE_TEST) kill;\
-	        $(DOCKER_COMPOSE_TEST) down --volumes --remove-orphans;\
+	        $(DOCKER_COMPOSE_TEST) down --volumes;\
 			echo "rm devops/env/test/.env";\
 			sudo rm devops/env/test/.env;\
 		else\
@@ -271,6 +430,9 @@ stop: check-env ## Stop only the docker MERN stack for the environment set up
 
 build-front: ## Build front react native
 	$(call build_front_from_make_target)
+
+configure-traefik-domain: ## Configure traefik domain
+	$(call configure_traefik_domain)	
 
 build: check-env ## Build project dependencies
 	@if [ ${ENV} == 'prod' ]; \

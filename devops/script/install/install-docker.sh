@@ -10,6 +10,3 @@ echo "creation du réseau global traefik"
 sudo docker network create --driver bridge TraefikGlobalProxy
 #sudo docker network create --driver bridge MySocializusNetwork
 #sudo docker network create --subnet=172.20.0.0/16 mongodb-network
-
-sudo usermod -aG docker ubuntu
-sudo su ubuntu

@@ -1,0 +1,10 @@
+displayName: Maintenance Page
+summary: Show visitors a maintenance page.
+iconPath: assets/icon.png
+type: middleware
+import: github.com/programic/traefik-maintenance-plugin
+
+testData:
+  informUrl: "http://inform/inform.json"
+  informInterval: 5
+  informTimeout: 3

@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  nginx-front:
+    image: nginx:alpine
+    container_name: socializus_nginx_front_maintenance
+    restart: always
+    volumes:
+      - ../../docker/conf/nginx/nginx-maintenance.conf:/etc/nginx/conf.d/default.conf:z,ro
+      - ../../docker/conf/traefik/traefik-maintenance-plugin/src/services/maintenance:/usr/share/nginx/html
+#   ports:
+#     - 80:80
+    networks:
+      - MySocializusNetwork
+      - TraefikGlobalProxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=TraefikGlobalProxy"
+      - "traefik.http.routers.nginx-front-secure.entrypoints=websecure"
+      - "traefik.http.routers.nginx-front-secure.rule=Host(`${NGINX_FRONT_URL}`)"
+      - "traefik.http.routers.nginx-front-secure.service=nginx-front"
+      - "traefik.http.services.nginx-front.loadbalancer.server.port=${NGINX_FRONT_PORT}"
+      - "traefik.http.routers.nginx-front-secure.middlewares=maintenance@file"		
+  inform:
+    image: nginx:alpine
+    container_name: socializus_nginx_front_inform_maintenance
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=TraefikGlobalProxy"
+      - "traefik.http.routers.inform-secure.entrypoints=websecure"
+      - "traefik.http.routers.inform-secure.rule=Host(`inform.${FORGE_BASE_URL}`)"
+      - "traefik.http.routers.inform-secure.service=inform"
+      - "traefik.http.services.inform.loadbalancer.server.port=${NGINX_FRONT_PORT}"
+    volumes:
+      - ../../docker/conf/nginx/nginx-maintenance.conf:/etc/nginx/conf.d/default.conf:z,ro
+      - ../../docker/conf/traefik/traefik-maintenance-plugin/src/services/inform:/usr/share/nginx/html
+    networks:
+      - MySocializusNetwork
+      - TraefikGlobalProxy    	
+networks:
+  MySocializusNetwork:
+    driver: bridge
+  TraefikGlobalProxy:
+    external: true	
+

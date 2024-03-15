@@ -35,6 +35,7 @@ services:
       - BACKEND_PORT=${BACKEND_PORT}
       - BACKEND_URL=${BACKEND_URL}
       - DATABASE_URL=${DATABASE_URL}
+      - CORS_ORIGINS=${CORS_ORIGINS}
 #     - DATABASE_SSL=${DATABASE_SSL}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
@@ -130,7 +131,20 @@ services:
       - "traefik.http.routers.mongodb-secure.rule=Host(`${MONGODB_URL}`)"
       - "traefik.http.routers.mongodb-secure.service=mongodb"
       - "traefik.http.services.mongodb.loadbalancer.server.port=${MONGODB_PORT}"
-      - "traefik.http.routers.mongodb-secure.middlewares=ipwhitelist-for-socializus-tools@file"      
+      - "traefik.http.routers.mongodb-secure.middlewares=ipwhitelist-for-socializus-tools@file"  
+  mongo-backup:
+    image: 'cyb3rko/mongodb-backup:latest'
+    environment:
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=${MONGODB_PORT}        
+      - MONGODB_USER=${MONGO_DB_ADMIN_USERNAME}
+      - MONGODB_PASS=${MONGO_DB_ADMIN_PASSWORD}
+      - MONGODB_DB=${MONGO_DB_CUSTOM_DATABASE}
+      - CRON_TIME="0 0 * * *"    
+      - INIT_BACKUP="true"          # See the list of backups, you can run: docker exec cyb3rko/mongodb-backup ls /backup
+      - MAX_BACKUPS="7"             # To restore database from a certain backup, simply run: docker exec cyb3rko/mongodb-backup /restore.sh /backup/2015.08.06.171901
+    volumes:
+      - /host/backup:/backup    # Replace '/host/backup' with your backup folder path          
 volumes:
 # default dir on Ubuntu: /var/lib/docker/volumes
   mongodb:
