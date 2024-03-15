@@ -158,7 +158,7 @@ DOCKER_COMPOSE_TEST = docker-compose ${DOCKER_COMPOSE_FILES_TEST}
 
 ##
 ## Project
-## -------
+## --------
 ##
 
 setup-env: ## Configuration of env variables
